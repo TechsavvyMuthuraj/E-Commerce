@@ -1,3 +1,4 @@
+'use client';
 import { useState, useEffect, useRef } from 'react';
 import styles from '../page.module.css';
 import PremiumBlogRenderer from '@/components/ui/PremiumBlogRenderer';
