@@ -1,55 +1,36 @@
 import Link from 'next/link';
 import styles from './page.module.css';
+import StaggeredTitle from '@/components/ui/StaggeredTitle';
+import StepCard from '@/components/ui/StepCard';
+import TerminalBlock from '@/components/ui/TerminalBlock';
+
+const terminalCode = [
+  "> EXE_TOOL INIT --SYSTEM=WIN11",
+  "# Analyzing system architecture...",
+  "> DETECTED: 42 unnecessary background telemetry services",
+  "> DETECTED: DWM latency spikes via unoptimized registry keys",
+  "# Commencing purge protocol...",
+  "> DEBLOAT: SUCCESS. 1.2GB RAM freed.",
+  "> REGISTRY: SUCCESS. IPC latency reduced by 40%.",
+  "> STATUS: Maximum Performance Mode Engaged."
+];
 
 const reviews = [
-  {
-    name: 'Arvind Sharma',
-    location: 'Delhi',
-    rating: 5,
-    title: "Best Windows optimization tool I've used",
-    body: 'The Windows 10 Optimizer Pack literally brought my old laptop back to life. Boot time dropped from 2 minutes to under 20 seconds. Absolutely worth every rupee.',
-    product: 'Windows 10 Optimizer Pack',
-    avatar: 'A',
-  },
-  {
-    name: 'Priya Nair',
-    location: 'Bangalore',
-    rating: 5,
-    title: 'Gaming performance went through the roof',
-    body: 'I bought the Gaming Booster Pro and my FPS in Valorant jumped from 60 to 110. No latency spikes, no frame drops. The tool does exactly what it promises.',
-    product: 'Gaming Booster Pro',
-    avatar: 'P',
-  },
-  {
-    name: 'Rohit Kumar',
-    location: 'Mumbai',
-    rating: 5,
-    title: 'Finally got rid of all the bloatware',
-    body: 'Windows 11 came preloaded with so much garbage. The Debloat Toolkit cleaned everything in one click. My system finally feels like MINE again.',
-    product: 'Windows 11 Debloat Toolkit',
-    avatar: 'R',
-  },
-  {
-    name: 'Sneha Reddy',
-    location: 'Hyderabad',
-    rating: 4,
-    title: 'Privacy Shield is a must-have',
-    body: 'Blocked all the telemetry Microsoft sneaks in by default. The tool is clean, simple, and very effective. Setting it up took less than 5 minutes.',
-    product: 'Privacy Shield Toolkit',
-    avatar: 'S',
-  },
+  { name: 'Arvind Sharma', rating: 5, body: 'Boot time dropped from 2 minutes to under 20 seconds. Absolutely worth every rupee.' },
+  { name: 'Priya Nair', rating: 5, body: 'My FPS in Valorant jumped from 60 to 110. No latency spikes, no frame drops.' },
 ];
 
 export default function Home() {
   return (
     <div className={styles.page}>
-      {/* Hero Section */}
+
+      {/* ── CINEMATIC HERO ── */}
       <section className={styles.hero}>
         <div className={`container ${styles.heroContent}`}>
-          <h1 className={styles.heroTitle}>
-            WINDOWS TOOLS &amp; <br />
-            <span className={styles.accent}>PC OPTIMIZATION SOFTWARE</span>
-          </h1>
+          <StaggeredTitle
+            title={["WINDOWS TOOLS &", "<span style='color:var(--accent)'>PC OPTIMIZATION SOFTWARE</span>"]}
+            className={styles.heroTitle}
+          />
           <p className={styles.heroSubtitle}>
             Industrial-grade Windows 10/11 optimization packs, debloat toolkits, privacy shields, and gaming boosters — precision-engineered for peak performance by Muthuraj C.
           </p>
@@ -60,63 +41,71 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Customer Reviews Section */}
-      <section className={`container ${styles.reviewsSection}`}>
-        <div className={styles.reviewsHeader}>
-          <div>
-            <h2 className={styles.reviewsTitle}>What Customers Say</h2>
-            <p className={styles.reviewsSub}>Verified reviews from real buyers across India</p>
-          </div>
-          <div className={styles.reviewsRating}>
-            <div className={styles.ratingScore}>4.9</div>
-            <div>
-              <div className={styles.stars}>★★★★★</div>
-              <div className={styles.ratingCount}>Based on 200+ reviews</div>
+      {/* ── PROCESS / STEP CARDS ── */}
+      <section className={`container ${styles.stepsSection}`}>
+        <h2 className={styles.sectionHeaderTitle}>Our Optimization Protocol</h2>
+        <div className={styles.stepsGrid}>
+          <StepCard step="01" title="Analyze & Diagnose" description="We run a deep-level scan of your Windows kernel, identifying telemetry loops, unoptimized registry keys, and resource-heavy bloatware." />
+          <StepCard step="02" title="Purge & Debloat" description="Safe removal of built-in bloatware, tracking services, and forced background tasks without compromising core OS stability." />
+          <StepCard step="03" title="Overdrive Tuning" description="Injecting custom registry directives to prioritize gaming and heavy workloads, bypassing default OS throttling mechanisms." />
+        </div>
+      </section>
+
+      {/* ── TWO-COLUMN TERMINAL / STATS GRID ── */}
+      <section className={`container ${styles.techSection}`}>
+        <div className={styles.twoColumn}>
+          {/* Sticky Sidebar */}
+          <div className={styles.stickySidebar}>
+            <h2 className={styles.sidebarTitle}>Built for Raw Speed.</h2>
+            <div className={styles.statsGrid}>
+              <div className={styles.statBox}>
+                <div className={styles.statNumber}>1.2<span>GB</span></div>
+                <div className={styles.statLabel}>Avg. RAM Freed</div>
+              </div>
+              <div className={styles.statBox}>
+                <div className={styles.statNumber}>-40<span>%</span></div>
+                <div className={styles.statLabel}>DWM Latency</div>
+              </div>
+              <div className={styles.statBox}>
+                <div className={styles.statNumber}>30<span>sec</span></div>
+                <div className={styles.statLabel}>Faster Boot Times</div>
+              </div>
+              <div className={styles.statBox}>
+                <div className={styles.statNumber}>2x</div>
+                <div className={styles.statLabel}>Avg. FPS Boost</div>
+              </div>
+            </div>
+            <div className={styles.tocBox}>
+              <p className={styles.tocSubtitle}>Terminal Directives</p>
+              <ul className={styles.tocList}>
+                <li>— Telemetry Disablement</li>
+                <li>— Service Optimization</li>
+                <li>— Network Stack Tuning</li>
+              </ul>
             </div>
           </div>
-        </div>
 
+          {/* Right Side Terminal */}
+          <div className={styles.terminalContainer}>
+            <TerminalBlock lines={terminalCode} />
+          </div>
+        </div>
+      </section>
+
+      {/* ── REVIEWS (Minimalist update) ── */}
+      <section className={`container ${styles.reviewsSection}`}>
+        <h2 className={styles.sectionHeaderTitle} style={{ textAlign: 'center', marginBottom: '3rem' }}>Customer Telemetry</h2>
         <div className={styles.reviewsGrid}>
           {reviews.map((r, i) => (
             <div key={i} className={styles.reviewCard}>
-              <div className={styles.reviewTop}>
-                <div className={styles.reviewAvatar}>{r.avatar}</div>
-                <div>
-                  <div className={styles.reviewerName}>{r.name}</div>
-                  <div className={styles.reviewerLocation}>{r.location}</div>
-                </div>
-                <div className={styles.reviewStars}>
-                  {Array.from({ length: r.rating }, (_, ii) => <span key={`full-${ii}`}>★</span>)}
-                  {Array.from({ length: 5 - r.rating }, (_, ii) => <span key={`empty-${ii}`} style={{ color: '#333' }}>★</span>)}
-                </div>
-              </div>
-              <div className={styles.reviewTitle}>&quot;{r.title}&quot;</div>
-              <p className={styles.reviewBody}>{r.body}</p>
-              <div className={styles.reviewProduct}>
-                <span className={styles.verifiedBadge}>✓ Verified</span>
-                {r.product}
-              </div>
+              <div className={styles.reviewStars}>★★★★★</div>
+              <p className={styles.reviewBody}>"{r.body}"</p>
+              <div className={styles.reviewerName}>— {r.name}</div>
             </div>
           ))}
         </div>
-
-        <div className={styles.reviewsCta}>
-          <Link href="/products" className="btn-secondary">Shop Now &amp; Join These Customers →</Link>
-        </div>
       </section>
 
-      {/* Developer Section */}
-      <section className={`container ${styles.developerSection}`}>
-        <div className={styles.developerBox}>
-          <div className={styles.developerInfo}>
-            <h2 className={styles.developerTitle}>Crafted by Muthuraj C — Windows OS Expert</h2>
-            <p className={styles.developerDesc}>
-              Every tool in this store is hand-engineered and battle-tested on real hardware. Specializing in Windows registry optimization, kernel-level debloating, privacy hardening, and gaming performance tuning since 2018.
-            </p>
-            <Link href="/contact" className={`btn-primary ${styles.contactBtn}`}>Contact Developer</Link>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

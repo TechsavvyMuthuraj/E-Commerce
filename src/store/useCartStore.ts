@@ -10,6 +10,7 @@ export interface CartItem {
     licenseTier: string;
     image: string;
     downloadLink?: string; // per-tier download URL set in admin
+    paymentLink?: string; // custom direct payment URL
 }
 
 interface CartState {

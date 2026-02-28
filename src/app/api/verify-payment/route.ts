@@ -14,7 +14,9 @@ export async function POST(request: Request) {
             cartItems,
             accessToken,
             userId,
-            amount
+            amount,
+            isCustomOrder,
+            label
         } = await request.json();
 
         // ── STEP 1: Verify Razorpay Signature (critical — must pass) ────────
@@ -28,6 +30,16 @@ export async function POST(request: Request) {
 
         if (expectedSignature !== razorpay_signature) {
             return NextResponse.json({ success: false, error: 'Invalid payment signature' }, { status: 400 });
+        }
+
+        // ── STEP 1.5: Special Case for Custom Orders ────────────────────────
+        if (isCustomOrder) {
+            return NextResponse.json({
+                success: true,
+                orderId: `CUSTOM-${razorpay_payment_id}`,
+                message: 'Custom payment verified successfully',
+                label: label || 'Custom Order'
+            });
         }
 
         // ── STEP 2: Generate license keys for each cart item ─────────────────

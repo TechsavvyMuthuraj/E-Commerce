@@ -1,0 +1,69 @@
+.card {
+    position: relative;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    padding: 3rem 2rem;
+    overflow: hidden;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease;
+    cursor: default;
+    height: 100%;
+}
+
+.card:hover {
+    transform: translateX(10px);
+    border-color: rgba(245, 166, 35, 0.5);
+}
+
+.ghostNumber {
+    position: absolute;
+    top: -20px;
+    right: -10px;
+    font-size: 10rem;
+    font-family: var(--font-bebas);
+    color: rgba(255, 255, 255, 0.02);
+    line-height: 1;
+    pointer-events: none;
+    transition: color 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1;
+}
+
+.card:hover .ghostNumber {
+    color: rgba(245, 166, 35, 0.06);
+    transform: scale(1.1) translateY(-10px);
+}
+
+.content {
+    position: relative;
+    z-index: 2;
+}
+
+.title {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--foreground);
+    letter-spacing: 0.5px;
+}
+
+.description {
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.lightSweep {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(245, 166, 35, 0.08), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.7s ease;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.card:hover .lightSweep {
+    left: 200%;
+}

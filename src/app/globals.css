@@ -7,9 +7,11 @@
   --card-bg: #1A1A1E;
   --border: #333333;
 
-  --font-body: var(--font-inter), sans-serif;
-  --font-heading: var(--font-barlow-condensed), sans-serif;
-  --font-mono: var(--font-space-mono), monospace;
+  --font-body: "JetBrains Mono", monospace;
+  /* Fallback, variable is auto-injected */
+  --font-heading: "Playfair Display", serif;
+  --font-bebas: "Bebas Neue", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
 }
 
 html,
@@ -28,7 +30,7 @@ body {
   line-height: 1.6;
 }
 
-/* Subtle Grid Texture Background */
+/* Subtle Tech Grid Texture Background */
 body::before {
   content: "";
   position: fixed;
@@ -38,10 +40,54 @@ body::before {
   height: 100%;
   pointer-events: none;
   z-index: -1;
-  background-size: 40px 40px;
+  background-size: 60px 60px;
   background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 30%, rgba(0, 0, 0, 0) 100%);
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 30%, rgba(0, 0, 0, 0) 100%);
+}
+
+/* CRT Scanlines Overlay */
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.25) 50%);
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.15;
+}
+
+/* Pulsing Gold Radial Orb */
+.global-orb {
+  position: fixed;
+  top: 40%;
+  left: 50%;
+  width: 800px;
+  height: 800px;
+  background: radial-gradient(circle, rgba(245, 166, 35, 0.08) 0%, transparent 60%);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -2;
+  animation: pulse-orb 8s ease-in-out infinite alternate;
+}
+
+@keyframes pulse-orb {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.6;
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(1.3);
+    opacity: 1;
+  }
 }
 
 h1,
@@ -51,11 +97,17 @@ h4,
 h5,
 h6 {
   font-family: var(--font-heading);
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.2;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.02em;
   margin-bottom: 0.5rem;
+}
+
+/* Bebas Neue utility for giant numbers, logos, industrial text */
+.font-bebas {
+  font-family: var(--font-bebas);
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 a {

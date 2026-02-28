@@ -11,34 +11,7 @@ function formatDate(dateStr: string) {
     } catch { return dateStr; }
 }
 
-// Renders body text with markdown support + clickable links
-function renderBody(body: string) {
-    if (!body) return null;
-    return body.split('\n\n').map((block, i) => {
-        // Replace [text](url) with anchor tags
-        const withLinks = block.replace(
-            /\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g,
-            `<a href="$2" target="_blank" rel="noopener noreferrer" class="${blogStyles.inlineLink}">$1 ↗</a>`
-        );
-
-        if (block.startsWith('### ')) return (
-            <h3 key={i} className={blogStyles.h3}>{block.slice(4)}</h3>
-        );
-        if (block.startsWith('## ')) return (
-            <h2 key={i} className={blogStyles.h2}>{block.slice(3)}</h2>
-        );
-        if (block.startsWith('- ') || block.startsWith('* ')) {
-            return (
-                <ul key={i} className={blogStyles.list}>
-                    {block.split('\n').map((item, j) => (
-                        <li key={j} dangerouslySetInnerHTML={{ __html: item.replace(/^[-*]\s/, '').replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g, `<a href="$2" target="_blank" rel="noopener" class="${blogStyles.inlineLink}">$1 ↗</a>`) }} />
-                    ))}
-                </ul>
-            );
-        }
-        return <p key={i} className={blogStyles.paragraph} dangerouslySetInnerHTML={{ __html: withLinks }} />;
-    });
-}
+import PremiumBlogRenderer from '@/components/ui/PremiumBlogRenderer';
 
 // Social link button
 function SocialBtn({ href, icon, label }: { href: string; icon: string; label: string }) {
@@ -141,7 +114,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
             {/* Body */}
             <div className={styles.postContent}>
                 {post.body
-                    ? renderBody(post.body)
+                    ? <PremiumBlogRenderer content={post.body} />
                     : <p className={styles.paragraph} style={{ color: 'var(--muted)' }}>No content yet for this post.</p>
                 }
             </div>

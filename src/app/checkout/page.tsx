@@ -12,9 +12,6 @@ export default function CheckoutPage() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [user, setUser] = useState<any>(null);
     const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-    const [localCoupon, setLocalCoupon] = useState('');
-    const [couponError, setCouponError] = useState<string | null>(null);
-    const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -23,122 +20,35 @@ export default function CheckoutPage() {
             const { data: { session } } = await supabase.auth.getSession();
             setUser(session?.user || null);
             setIsCheckingAuth(false);
+
+            // AUTO-REDIRECT IF LINK EXISTS
+            // If the user lands here and we have a direct pay link, skip this page!
+            const itemWithPayLink = items.find(item => item.paymentLink);
+            if (itemWithPayLink?.paymentLink) {
+                window.location.href = itemWithPayLink.paymentLink;
+            }
         };
         authenticateSession();
-    }, []);
+    }, [items]);
 
-    const loadRazorpay = async () => {
-        return new Promise((resolve) => {
-            const script = document.createElement('script');
-            script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-            script.onload = () => resolve(true);
-            script.onerror = () => resolve(false);
-            document.body.appendChild(script);
-        });
-    };
+
 
     const handleCheckout = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsProcessing(true);
 
         try {
-            const res = await loadRazorpay();
-            if (!res) {
-                alert('Razorpay SDK failed to load. Are you offline?');
-                setIsProcessing(false);
+            // Find an item with a custom payment link
+            const itemWithPayLink = items.find(item => item.paymentLink);
+
+            if (itemWithPayLink?.paymentLink) {
+                // Redirect directly to the custom payment link (Razorpay, Stripe, etc.)
+                window.location.href = itemWithPayLink.paymentLink;
                 return;
-            }
-
-            // Request our local Next.js Route to initialize an Order
-            const total = getCartTotal();
-            const response = await fetch('/api/checkout', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ items, couponCode })
-            });
-            const data = await response.json();
-
-            if (!response.ok || !data.order) {
-                alert('Order creation failed. Check console.');
-                console.error(data);
+            } else {
+                alert('This item does not have a direct payment link configured. Please contact the administrator.');
                 setIsProcessing(false);
-                return;
             }
-
-            // Razorpay options
-            const options = {
-                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'dummy_key',
-                amount: data.order.amount,
-                currency: data.order.currency,
-                name: 'EXE TOOL',
-                description: 'Payment for your digital tools',
-                order_id: data.order.id,
-                handler: async function (response: any) {
-                    console.log('Payment Verification Triggered:', response);
-
-                    try {
-                        const { data: { session } } = await supabase.auth.getSession();
-
-                        const verifyRes = await fetch('/api/verify-payment', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                razorpay_order_id: response.razorpay_order_id,
-                                razorpay_payment_id: response.razorpay_payment_id,
-                                razorpay_signature: response.razorpay_signature,
-                                cartItems: items,
-                                accessToken: session?.access_token,
-                                userId: user.id,
-                                amount: getDiscountedTotal()
-                            })
-                        });
-
-                        const verifyData = await verifyRes.json();
-
-                        if (verifyRes.ok && verifyData.success) {
-                            clearCart();
-                            // Build download redirect URL
-                            if (verifyData.downloadLinks?.length > 0) {
-                                const params = new URLSearchParams();
-                                params.set('orderId', verifyData.orderId);
-                                verifyData.downloadLinks.forEach((d: any, i: number) => {
-                                    params.set(`title${i}`, d.title);
-                                    params.set(`link${i}`, d.downloadLink);
-                                    params.set(`key${i}`, d.licenseKey);
-                                });
-                                params.set('count', String(verifyData.downloadLinks.length));
-                                router.push(`/download?${params.toString()}`);
-                            } else {
-                                router.push('/order-success');
-                            }
-                        } else {
-                            console.error('Verification failed:', verifyData);
-                            alert('Payment could not be securely verified. Contact system administrator.');
-                            setIsProcessing(false);
-                        }
-                    } catch (err) {
-                        console.error('Verification ping failed:', err);
-                        alert('Fatal error during transaction verification.');
-                        setIsProcessing(false);
-                    }
-                },
-                prefill: {
-                    name: (document.getElementById('fullname') as HTMLInputElement)?.value || 'John Doe',
-                    email: (document.getElementById('email') as HTMLInputElement)?.value || 'john@example.com'
-                },
-                theme: {
-                    color: '#F5A623'
-                },
-                modal: {
-                    ondismiss: function () {
-                        setIsProcessing(false);
-                    }
-                }
-            };
-
-            const paymentObject = new (window as any).Razorpay(options);
-            paymentObject.open();
-
         } catch (err) {
             console.error(err);
             alert('Something went wrong initiating checkout.');
@@ -146,31 +56,8 @@ export default function CheckoutPage() {
         }
     };
 
-    const handleApplyCoupon = async () => {
-        if (!localCoupon.trim()) return;
-        setIsApplyingCoupon(true);
-        setCouponError(null);
 
-        try {
-            const res = await fetch('/api/coupon/validate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code: localCoupon, cartItems: items })
-            });
-            const data = await res.json();
 
-            if (res.ok && data.success) {
-                applyCoupon(data.code, data.discountPercentage);
-                setLocalCoupon('');
-            } else {
-                setCouponError(data.error || 'Invalid coupon');
-            }
-        } catch (err) {
-            setCouponError('Error validating coupon');
-        } finally {
-            setIsApplyingCoupon(false);
-        }
-    };
 
     if (!mounted || isCheckingAuth) {
         return (
@@ -240,7 +127,7 @@ export default function CheckoutPage() {
                         </div>
 
                         <button type="submit" className={`btn-primary ${styles.payBtn}`} disabled={isProcessing}>
-                            {isProcessing ? 'Initializing Razorpay...' : `Pay ₹${getDiscountedTotal()} via Razorpay`}
+                            {isProcessing ? 'Redirecting to Payment Gateway...' : 'COMPLETE PURCHASE (EXTERNAL LINK)'}
                         </button>
                     </form>
                 </div>
@@ -269,39 +156,6 @@ export default function CheckoutPage() {
                                 <span>Subtotal</span>
                                 <span className={couponCode ? styles.strikethrough : ''}>₹{getCartTotal()}</span>
                             </div>
-
-                            {/* COUPON SYSTEM UI */}
-                            {couponCode ? (
-                                <div className={`${styles.totalRow} ${styles.discountRow}`} style={{ color: '#4CAF50' }}>
-                                    <span>
-                                        Discount ({couponCode}) - {discountPercentage}%
-                                        <button onClick={removeCoupon} style={{ marginLeft: '10px', background: 'none', border: 'none', color: '#f44336', cursor: 'pointer', fontSize: '0.8rem' }}>Remove</button>
-                                    </span>
-                                    <span>-₹{(getCartTotal() - getDiscountedTotal()).toFixed(2)}</span>
-                                </div>
-                            ) : (
-                                <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>
-                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                        <input
-                                            type="text"
-                                            placeholder="Enter Promo Code"
-                                            value={localCoupon}
-                                            onChange={(e) => setLocalCoupon(e.target.value)}
-                                            className={styles.input}
-                                            style={{ flex: 1, padding: '0.75rem' }}
-                                        />
-                                        <button
-                                            type="button"
-                                            className="btn-secondary"
-                                            onClick={handleApplyCoupon}
-                                            disabled={isApplyingCoupon || !localCoupon.trim()}
-                                        >
-                                            {isApplyingCoupon ? '...' : 'Apply'}
-                                        </button>
-                                    </div>
-                                    {couponError && <div style={{ color: '#f44336', fontSize: '0.85rem', marginTop: '0.5rem' }}>{couponError}</div>}
-                                </div>
-                            )}
 
                             <div className={styles.totalRow}>
                                 <span>Tax (Calculated at gateway)</span>

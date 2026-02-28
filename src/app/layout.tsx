@@ -1,24 +1,25 @@
 import type { Metadata } from "next";
-import { Inter, Barlow_Condensed, Space_Mono } from "next/font/google";
+import { Playfair_Display, JetBrains_Mono, Bebas_Neue } from "next/font/google";
 import ClientShell from "@/components/layout/ClientShell";
 import PageTransition from "@/components/layout/PageTransition";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
-
-const barlowCondensed = Barlow_Condensed({
-  variable: "--font-barlow-condensed",
+const playfair = Playfair_Display({
+  variable: "--font-heading",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
 });
 
-const spaceMono = Space_Mono({
-  variable: "--font-space-mono",
+const jetbrains = JetBrains_Mono({
+  variable: "--font-body",
   subsets: ["latin"],
-  weight: ["400", "700"],
+  weight: ["400", "500", "700"],
+});
+
+const bebas = Bebas_Neue({
+  variable: "--font-bebas",
+  subsets: ["latin"],
+  weight: ["400"],
 });
 
 export const metadata: Metadata = {
@@ -33,7 +34,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${barlowCondensed.variable} ${spaceMono.variable}`}>
+      <body className={`${playfair.variable} ${jetbrains.variable} ${bebas.variable}`}>
         <ClientShell>
           <PageTransition>
             {children}

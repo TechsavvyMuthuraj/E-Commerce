@@ -14,7 +14,11 @@ export async function GET(request: Request) {
         // Return full fields so the edit form can be pre-filled
         const productFields = `_id, _type, title, slug, category, _createdAt, shortDescription, longDescription, features, pricingTiers[] { name, price, licenseType, downloadLink, paymentLink }, "mainImage": { "url": mainImage.asset->url, "ref": mainImage.asset._ref }, "gallery": gallery[] { "url": asset->url, "ref": asset._ref }`;
         const postFields = `_id, _type, title, slug, category, _createdAt, excerpt, body, readTime, coverImageUrl, links, author`;
-        const fields = type === 'product' ? productFields : postFields;
+        const storedLinkFields = `_id, _type, title, amount, url, _createdAt`;
+
+        let fields = postFields;
+        if (type === 'product') fields = productFields;
+        else if (type === 'storedLink') fields = storedLinkFields;
 
         const query = encodeURIComponent(`*[_type == "${type}"] | order(_createdAt desc) { ${fields} }`);
         const res = await fetch(

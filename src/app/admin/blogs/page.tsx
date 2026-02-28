@@ -1,6 +1,6 @@
-'use client';
 import { useState, useEffect, useRef } from 'react';
 import styles from '../page.module.css';
+import PremiumBlogRenderer from '@/components/ui/PremiumBlogRenderer';
 
 interface BlogDoc {
     _id: string;
@@ -155,22 +155,15 @@ export default function AdminBlogsPage() {
         loadDocs();
     };
 
-    /* ── Simple body preview renderer ─── */
-    const renderPreview = (body: string) => {
-        if (!body.trim()) return <p style={{ color: '#555' }}>Nothing to preview yet. Start writing...</p>;
-        return body.split('\n\n').map((block, i) => {
-            // Links
-            const parsed = block.replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g,
-                `<a href="$2" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline;">$1</a>`);
-            if (block.startsWith('### ')) return <h3 key={i} style={{ color: '#fff', fontSize: '1.3rem', margin: '1.5rem 0 0.5rem', textTransform: 'uppercase', letterSpacing: '1px' }}>{block.slice(4)}</h3>;
-            if (block.startsWith('## ')) return <h2 key={i} style={{ color: '#fff', fontSize: '1.6rem', margin: '2rem 0 0.5rem' }}>{block.slice(3)}</h2>;
-            if (block.startsWith('- ') || block.startsWith('* ')) {
-                return <ul key={i} style={{ color: '#aaa', paddingLeft: '1.5rem', lineHeight: 2 }}>
-                    {block.split('\n').map((item, j) => <li key={j}>{item.replace(/^[-*]\s/, '')}</li>)}
-                </ul>;
-            }
-            return <p key={i} style={{ color: '#aaa', lineHeight: 1.8, marginBottom: '1rem' }} dangerouslySetInnerHTML={{ __html: parsed }} />;
-        });
+    /* ── Snippet Injectors ─── */
+    const insertSnippet = (snippet: string) => {
+        setForm(p => ({ ...p, body: p.body + (p.body && !p.body.endsWith('\n\n') ? '\n\n' : '') + snippet + '\n\n' }));
+    };
+
+    const SNIPPETS = {
+        title: "[StaggeredTitle]\nYour Premium Title Here\nSecond Line of Title\n[/StaggeredTitle]",
+        stepCard: "[StepCard: 01]\nYour Step Title\nYour detailed step description goes here.\n[/StepCard]",
+        terminal: "[Terminal]\n> exe_tool scan\n# Analyzing registry...\n> SUCCESS: 15 optimizations applied.\n[/Terminal]"
     };
 
     return (
@@ -258,18 +251,30 @@ export default function AdminBlogsPage() {
 
                         {/* ── Body with Write/Preview tabs ── */}
                         <div className={styles.field}>
-                            <label>Post Body <span style={{ color: '#555', fontWeight: 400 }}>— supports ## headings, - bullet lists, [link text](url)</span></label>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', marginBottom: '0.5rem' }}>
+                                <label style={{ margin: 0 }}>Post Body <span style={{ color: '#555', fontWeight: 400 }}>— supports advanced blocks</span></label>
+                                {tab === 'write' && (
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        <button type="button" onClick={() => insertSnippet(SNIPPETS.title)} className="btn-secondary" style={{ padding: '0.2rem 0.5rem', fontSize: '0.7rem' }}>+ Title</button>
+                                        <button type="button" onClick={() => insertSnippet(SNIPPETS.stepCard)} className="btn-secondary" style={{ padding: '0.2rem 0.5rem', fontSize: '0.7rem' }}>+ Step Card</button>
+                                        <button type="button" onClick={() => insertSnippet(SNIPPETS.terminal)} className="btn-secondary" style={{ padding: '0.2rem 0.5rem', fontSize: '0.7rem' }}>+ Terminal</button>
+                                    </div>
+                                )}
+                            </div>
+
                             {tab === 'write' ? (
                                 <textarea value={form.body} onChange={f('body')}
                                     placeholder={'## Introduction\n\nWrite your article here...\n\n### Step 1: Open Settings\n\n- Tip one\n- Tip two\n\n[Learn more](https://example.com)'}
-                                    style={{ minHeight: '300px', fontFamily: 'monospace', fontSize: '0.9rem', lineHeight: '1.6' }} />
+                                    style={{ minHeight: '400px', fontFamily: 'monospace', fontSize: '0.9rem', lineHeight: '1.6' }} />
                             ) : (
-                                <div style={{ minHeight: '300px', background: '#0a0a0c', border: '1px solid #2a2a2a', padding: '1.5rem', overflowY: 'auto' }}>
-                                    {coverPreview && <img src={coverPreview} alt="Cover" style={{ width: '100%', maxHeight: '200px', objectFit: 'cover', marginBottom: '1.5rem', border: '1px solid #1e1e1e' }} />}
+                                <div style={{ minHeight: '400px', background: '#0a0a0c', border: '1px solid #2a2a2a', padding: '2.5rem', overflowY: 'auto' }}>
+                                    {coverPreview && <img src={coverPreview} alt="Cover" style={{ width: '100%', maxHeight: '400px', objectFit: 'cover', marginBottom: '2.5rem', borderRadius: '4px', border: '1px solid #1e1e1e' }} />}
                                     <div style={{ color: 'var(--accent)', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.5rem' }}>{form.category}</div>
-                                    <h1 style={{ color: '#fff', fontSize: '2rem', marginBottom: '0.5rem' }}>{form.title || 'Your Post Title'}</h1>
-                                    {form.excerpt && <p style={{ color: '#666', fontStyle: 'italic', borderLeft: '3px solid var(--accent)', paddingLeft: '1rem', marginBottom: '2rem' }}>{form.excerpt}</p>}
-                                    <div>{renderPreview(form.body)}</div>
+                                    <h1 style={{ color: '#fff', fontSize: '2.5rem', marginBottom: '0.5rem', fontFamily: 'var(--font-heading)' }}>{form.title || 'Your Post Title'}</h1>
+                                    {form.excerpt && <p style={{ color: '#666', fontStyle: 'italic', borderLeft: '3px solid var(--accent)', paddingLeft: '1rem', marginBottom: '3rem', fontFamily: 'var(--font-heading)', fontSize: '1.1rem' }}>{form.excerpt}</p>}
+
+                                    <PremiumBlogRenderer content={form.body} />
+
                                     {links.length > 0 && (
                                         <div style={{ marginTop: '2rem', borderTop: '1px solid #1e1e1e', paddingTop: '1.5rem' }}>
                                             <div style={{ color: '#555', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '1rem' }}>References & Links</div>

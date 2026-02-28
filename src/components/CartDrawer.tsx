@@ -58,9 +58,26 @@ export default function CartDrawer() {
                             <span>Subtotal</span>
                             <span className={`pricing-code ${styles.totalPrice}`}>₹{getCartTotal()}</span>
                         </div>
-                        <Link href="/checkout" className={`btn-primary ${styles.checkoutBtn}`} onClick={closeDrawer}>
-                            Proceed to Checkout
-                        </Link>
+                        {items.some(item => item.paymentLink) ? (
+                            <button
+                                className={`btn-primary ${styles.checkoutBtn}`}
+                                onClick={() => {
+                                    const link = items.find(i => i.paymentLink)?.paymentLink;
+                                    if (link) window.location.href = link;
+                                    closeDrawer();
+                                }}
+                            >
+                                PAY NOW (DIRECT LINK)
+                            </button>
+                        ) : (
+                            <button
+                                className={`btn-primary ${styles.checkoutBtn}`}
+                                onClick={() => alert('No Payment Link configured for these items.')}
+                                style={{ opacity: 0.5, cursor: 'not-allowed' }}
+                            >
+                                CHECKOUT DISABLED (NO LINK)
+                            </button>
+                        )}
                     </div>
                 )}
             </div>

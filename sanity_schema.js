@@ -57,7 +57,9 @@ export default {
                     fields: [
                         { name: 'name', title: 'Tier Name (e.g. Personal/Commercial)', type: 'string' },
                         { name: 'price', title: 'Price (USD)', type: 'number' },
-                        { name: 'licenseType', title: 'License Type Code', type: 'string' }
+                        { name: 'licenseType', title: 'License Type Code', type: 'string' },
+                        { name: 'downloadLink', title: 'Download Link (URL)', type: 'url' },
+                        { name: 'paymentLink', title: 'Payment Link (Razorpay URL)', type: 'url' }
                     ]
                 }
             ]

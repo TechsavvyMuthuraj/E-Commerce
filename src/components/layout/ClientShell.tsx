@@ -4,6 +4,9 @@ import { usePathname } from 'next/navigation';
 import Navbar from "@/components/layout/Navbar";
 import CartDrawer from "@/components/CartDrawer";
 import CompareDrawer from "@/components/CompareDrawer";
+import CustomCursor from "@/components/layout/CustomCursor";
+import ProgressBar from "@/components/layout/ProgressBar";
+import DotNav from "@/components/layout/DotNav";
 
 export default function ClientShell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -11,6 +14,10 @@ export default function ClientShell({ children }: { children: React.ReactNode })
 
     return (
         <>
+            <div className="global-orb"></div>
+            <CustomCursor />
+            <ProgressBar />
+            {!isAdmin && <DotNav />}
             {!isAdmin && <Navbar />}
             {!isAdmin && <CartDrawer />}
             {!isAdmin && <CompareDrawer />}

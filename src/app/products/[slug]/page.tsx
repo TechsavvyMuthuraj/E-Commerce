@@ -103,23 +103,15 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
         fetchProduct();
     }, [slug]);
 
-    const handleAddToCart = () => {
+    const handleBuyNow = () => {
         if (!product || !selectedTier) return;
 
-        // If there's a custom payment link for this tier, we can optionally redirect directly
-        // However, standard flow is cart. We'll add a separate button in the UI for direct link.
-
-        addItem({
-            id: `${product.slug}-${selectedTier.licenseType}`,
-            productId: product.id,
-            slug: product.slug,
-            title: product.title,
-            price: selectedTier.price,
-            licenseTier: selectedTier.licenseType,
-            image: product.image,
-            downloadLink: selectedTier.downloadLink
-        });
-        openDrawer();
+        if (selectedTier.paymentLink) {
+            window.location.href = selectedTier.paymentLink;
+        } else {
+            // Strict enforcement of Payment Links only. No fallback to cart/checkout.
+            alert('Test Mode / Admin Notice: This product does not have a Razorpay Payment Link configured. Please add the "Payment Link" in your Sanity CMS for this product tier.');
+        }
     };
 
     if (isLoading) {
@@ -203,20 +195,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                                 <div className={styles.finalPrice}>₹{selectedTier.price}</div>
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', flexGrow: 1 }}>
-                                <button className={`btn-primary ${styles.addToCartBtn}`} onClick={handleAddToCart} style={{ margin: 0 }}>
-                                    Add to Cart
+                                <button className={`btn-primary ${styles.addToCartBtn}`} onClick={handleBuyNow} style={{ margin: 0 }}>
+                                    {selectedTier.paymentLink ? 'BUY NOW' : 'Add to Cart'}
                                 </button>
-                                {selectedTier.paymentLink && (
-                                    <a
-                                        href={selectedTier.paymentLink}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="btn-secondary"
-                                        style={{ textAlign: 'center', fontSize: '1rem', padding: '0.75rem' }}
-                                    >
-                                        Buy Now (Direct Link) ↗
-                                    </a>
-                                )}
                             </div>
                         </div>
                     )}

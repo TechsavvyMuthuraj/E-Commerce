@@ -1,92 +1,163 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from '../page.module.css';
 
-export default function PayLinkGenerator() {
+interface StoredLink {
+    _id: string;
+    title: string;
+    amount: number;
+    url: string;
+    _createdAt: string;
+}
+
+export default function PayLinkStore() {
+    const [links, setLinks] = useState<StoredLink[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+
+    // Form state
+    const [title, setTitle] = useState('');
     const [amount, setAmount] = useState('');
-    const [label, setLabel] = useState('Custom Software Order');
-    const [generatedLink, setGeneratedLink] = useState('');
+    const [url, setUrl] = useState('');
+    const [msg, setMsg] = useState('');
 
-    const generate = () => {
-        if (!amount || Number(amount) <= 0) return;
-
-        // Base URL — in prod this should use the real domain
-        // We'll use window.location.origin to make it dynamic
-        const origin = typeof window !== 'undefined' ? window.location.origin : '';
-        const url = `${origin}/pay/custom?amount=${amount}&label=${encodeURIComponent(label)}`;
-        setGeneratedLink(url);
+    const loadLinks = () => {
+        setLoading(true);
+        fetch('/api/admin/sanity?type=storedLink')
+            .then(r => r.json())
+            .then(d => { setLinks(d.documents || []); setLoading(false); })
+            .catch(() => setLoading(false));
     };
 
-    const copyToClipboard = () => {
-        navigator.clipboard.writeText(generatedLink);
+    useEffect(() => { loadLinks(); }, []);
+
+    const handleSave = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setSaving(true); setMsg('');
+
+        const doc = {
+            _type: 'storedLink',
+            title,
+            amount: Number(amount),
+            url
+        };
+
+        const res = await fetch('/api/admin/sanity', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ document: doc })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            setMsg('✓ Payment Link stored successfully!');
+            setTitle(''); setAmount(''); setUrl('');
+            loadLinks();
+        } else {
+            setMsg('Error saving link: ' + JSON.stringify(data.error));
+        }
+        setSaving(false);
+    };
+
+    const handleDelete = async (id: string, name: string) => {
+        if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+        await fetch('/api/admin/sanity', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id })
+        });
+        loadLinks();
+    };
+
+    const copyToClipboard = (text: string) => {
+        navigator.clipboard.writeText(text);
         alert('Link copied to clipboard!');
     };
 
     return (
         <div>
             <div className={styles.pageHeader}>
-                <h1 className={styles.pageTitle}>Payment Link Generator</h1>
-                <p className={styles.pageSub}>Create a custom checkout link with a specific amount to send to your customers.</p>
+                <h1 className={styles.pageTitle}>Payment Links Store</h1>
+                <p className={styles.pageSub}>Save and manage Razorpay payment links for quick access and distribution.</p>
             </div>
 
-            <div className={styles.formCard} style={{ maxWidth: '600px' }}>
-                <div className={styles.fieldset}>
-                    <div className={styles.field}>
-                        <label>Amount (₹)</label>
-                        <input
-                            type="number"
-                            placeholder="e.g. 500"
-                            value={amount}
-                            onChange={e => setAmount(e.target.value)}
-                        />
-                    </div>
-
-                    <div className={styles.field}>
-                        <label>Order Label / Description</label>
-                        <input
-                            type="text"
-                            placeholder="e.g. Bulk License Pack"
-                            value={label}
-                            onChange={e => setLabel(e.target.value)}
-                        />
-                    </div>
-
-                    <button className="btn-primary" onClick={generate} style={{ marginTop: '1rem' }}>
-                        Generate Link
-                    </button>
-
-                    {generatedLink && (
-                        <div style={{ marginTop: '2rem', padding: '1.5rem', background: '#0a0a0c', border: '1px dashed #333' }}>
-                            <div style={{ fontSize: '0.8rem', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Your Custom Link</div>
-                            <div style={{
-                                wordBreak: 'break-all',
-                                padding: '1rem',
-                                background: '#111',
-                                border: '1px solid #222',
-                                fontFamily: 'monospace',
-                                color: '#888',
-                                fontSize: '0.9rem',
-                                marginBottom: '1rem'
-                            }}>
-                                {generatedLink}
-                            </div>
-                            <div style={{ display: 'flex', gap: '1rem' }}>
-                                <button className="btn-secondary" onClick={copyToClipboard}>Copy Link</button>
-                                <a href={generatedLink} target="_blank" className="btn-secondary" style={{ textDecoration: 'none' }}>Open Link ↗</a>
-                            </div>
+            <div className={styles.formCard}>
+                <h2 className={styles.formTitle}>Add New Link</h2>
+                <form onSubmit={handleSave} className={styles.fieldset}>
+                    <div className={styles.fieldRow}>
+                        <div className={styles.field}>
+                            <label>Product / Label Name</label>
+                            <input
+                                type="text"
+                                required
+                                placeholder="e.g. Windows Optimizer (Lifetime)"
+                                value={title}
+                                onChange={e => setTitle(e.target.value)}
+                            />
                         </div>
-                    )}
-                </div>
+                        <div className={styles.field}>
+                            <label>Amount (₹)</label>
+                            <input
+                                type="number"
+                                required
+                                placeholder="e.g. 500"
+                                value={amount}
+                                onChange={e => setAmount(e.target.value)}
+                            />
+                        </div>
+                    </div>
+
+                    <div className={styles.field}>
+                        <label>Razorpay Payment URL</label>
+                        <input
+                            type="url"
+                            required
+                            placeholder="https://rzp.io/..."
+                            value={url}
+                            onChange={e => setUrl(e.target.value)}
+                            style={{ fontFamily: 'monospace' }}
+                        />
+                    </div>
+
+                    {msg && <div style={{ color: msg.startsWith('✓') ? '#4CAF50' : '#f44336', fontSize: '0.85rem', marginTop: '0.5rem' }}>{msg}</div>}
+
+                    <button type="submit" className="btn-primary" disabled={saving} style={{ marginTop: '1.5rem', width: 'auto', padding: '0.75rem 2rem' }}>
+                        {saving ? 'Saving...' : 'Save Payment Link'}
+                    </button>
+                </form>
             </div>
 
-            <div style={{ marginTop: '3rem', color: '#555', fontSize: '0.9rem' }}>
-                <h3 style={{ color: '#888', marginBottom: '1rem' }}>How it works:</h3>
-                <ol style={{ paddingLeft: '1.2rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <li>You set a custom amount and a friendly label.</li>
-                    <li>The system generates a secure link to the EXE TOOL checkout.</li>
-                    <li>When the customer opens the link, the payment modal pops up immediately for that amount.</li>
-                    <li>After payment, they are redirected to the standard success page.</li>
-                </ol>
+            <div style={{ marginTop: '3rem' }}>
+                <div className={styles.toolbarRow}>
+                    <h2 className={styles.sectionTitle}>Stored Links ({links.length})</h2>
+                    <button className="btn-secondary" onClick={loadLinks} style={{ fontSize: '0.8rem', padding: '0.4rem 1rem' }}>Refresh</button>
+                </div>
+
+                {loading ? <div className={styles.emptyState}>Loading...</div> : links.length === 0 ? (
+                    <div className={styles.emptyState}>No links stored yet.</div>
+                ) : (
+                    <div className={styles.table}>
+                        <div className={`${styles.tableRow} ${styles.tableHead} ${styles.docRow}`} style={{ gridTemplateColumns: '2fr 1fr 2fr 1fr 1fr' }}>
+                            <span>Label</span><span>Amount</span><span>URL</span><span>Created</span><span>Actions</span>
+                        </div>
+                        {links.map(link => (
+                            <div key={link._id} className={`${styles.tableRow} ${styles.docRow}`} style={{ gridTemplateColumns: '2fr 1fr 2fr 1fr 1fr', alignItems: 'center' }}>
+                                <span style={{ fontWeight: 600 }}>{link.title}</span>
+                                <span className={`pricing-code ${styles.accent}`}>₹{link.amount || 0}</span>
+                                <span className={styles.mono} style={{ fontSize: '0.75rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    {link.url}
+                                </span>
+                                <span className={styles.muted} style={{ fontSize: '0.85rem' }}>
+                                    {new Date(link._createdAt).toLocaleDateString()}
+                                </span>
+                                <div style={{ display: 'flex', gap: '0.4rem' }}>
+                                    <button className={styles.approveBtn} onClick={() => copyToClipboard(link.url)}>Copy</button>
+                                    <button className={styles.deleteBtn} onClick={() => handleDelete(link._id, link.title)}>Delete</button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );
