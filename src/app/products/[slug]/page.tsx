@@ -24,7 +24,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 const query = `*[_type == "product" && slug.current == $slug][0] {
                     _id, title, "slug": slug.current, category, shortDescription,
                     longDescription, features,
-                    pricingTiers[] { name, price, licenseType, downloadLink, paymentLink },
+                    pricingTiers[] { name, price, originalPrice, licenseType, downloadLink, paymentLink },
                     "imageUrl": mainImage.asset->url,
                     "gallery": gallery[].asset->url
                 }`;
@@ -174,14 +174,21 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                         <div className={styles.pricingSection}>
                             <h3 className={styles.sectionTitle}>License Option</h3>
                             <div className={styles.tiersGrid}>
-                                {product.pricingTiers.map((tier: { licenseType: string; name: string; price: number }) => (
+                                {product.pricingTiers.map((tier: { licenseType: string; name: string; price: number; originalPrice?: number }) => (
                                     <div
                                         key={tier.licenseType}
                                         className={`${styles.tierCard} ${selectedTier?.licenseType === tier.licenseType ? styles.activeTier : ''}`}
                                         onClick={() => setSelectedTier(tier)}
                                     >
                                         <div className={styles.tierName}>{tier.name}</div>
-                                        <div className={`pricing-code ${styles.tierPrice}`}>₹{tier.price}</div>
+                                        <div className={`pricing-code ${styles.tierPrice}`}>
+                                            {tier.originalPrice && (
+                                                <span style={{ textDecoration: 'line-through', color: 'var(--muted)', fontSize: '0.8em', marginRight: '0.4rem' }}>
+                                                    ₹{tier.originalPrice}
+                                                </span>
+                                            )}
+                                            ₹{tier.price}
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -192,7 +199,19 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                         <div className={styles.actionSection}>
                             <div className={styles.selectedPrice}>
                                 <div className={styles.priceLabel}>Price for {selectedTier.name}</div>
-                                <div className={styles.finalPrice}>₹{selectedTier.price}</div>
+                                <div className={styles.finalPrice}>
+                                    {selectedTier.originalPrice && (
+                                        <span style={{ textDecoration: 'line-through', color: 'var(--muted)', fontSize: '0.6em', marginRight: '0.5rem' }}>
+                                            ₹{selectedTier.originalPrice}
+                                        </span>
+                                    )}
+                                    ₹{selectedTier.price}
+                                    {selectedTier.originalPrice && selectedTier.price < selectedTier.originalPrice && (
+                                        <span style={{ marginLeft: '1rem', background: 'rgba(255, 170, 0, 0.1)', color: 'var(--accent)', fontSize: '0.45em', padding: '4px 8px', borderRadius: '4px', verticalAlign: 'middle', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                            Save {Math.round((1 - selectedTier.price / selectedTier.originalPrice) * 100)}%
+                                        </span>
+                                    )}
+                                </div>
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', flexGrow: 1 }}>
                                 <button className={`btn-primary ${styles.addToCartBtn}`} onClick={handleBuyNow} style={{ margin: 0 }}>

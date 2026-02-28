@@ -11,7 +11,7 @@ export async function GET() {
         }
 
         const query = encodeURIComponent(
-            `*[_type == "post"] | order(publishedAt desc, _createdAt desc) {
+            `*[_type == "post" && status != "draft"] | order(publishedAt desc, _createdAt desc) {
                 _id,
                 title,
                 "slug": slug.current,

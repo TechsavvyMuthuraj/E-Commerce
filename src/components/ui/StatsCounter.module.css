@@ -1,0 +1,45 @@
+.stripWrapper {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    background: #08080a;
+    border-top: 1px solid #1a1a1a;
+    border-bottom: 1px solid #1a1a1a;
+    padding: 3rem 0;
+    margin-top: -2rem;
+    /* Pull up towards hero */
+    position: relative;
+    z-index: 10;
+}
+
+.grid {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+.statBox {
+    text-align: center;
+    flex: 1;
+    min-width: 200px;
+}
+
+.number {
+    font-size: 3rem;
+    font-family: var(--font-heading);
+    color: var(--accent);
+    /* Amber/Gold */
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 20px rgba(255, 170, 0, 0.2);
+}
+
+.label {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #888;
+    font-weight: 600;
+}

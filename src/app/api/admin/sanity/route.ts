@@ -12,8 +12,8 @@ export async function GET(request: Request) {
         const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production';
 
         // Return full fields so the edit form can be pre-filled
-        const productFields = `_id, _type, title, slug, category, _createdAt, shortDescription, longDescription, features, pricingTiers[] { name, price, licenseType, downloadLink, paymentLink }, "mainImage": { "url": mainImage.asset->url, "ref": mainImage.asset._ref }, "gallery": gallery[] { "url": asset->url, "ref": asset._ref }`;
-        const postFields = `_id, _type, title, slug, category, _createdAt, excerpt, body, readTime, coverImageUrl, links, author`;
+        const productFields = `_id, _type, title, slug, category, _createdAt, shortDescription, longDescription, features, pricingTiers[] { name, price, originalPrice, licenseType, downloadLink, paymentLink }, "mainImage": { "url": mainImage.asset->url, "ref": mainImage.asset._ref }, "gallery": gallery[] { "url": asset->url, "ref": asset._ref }`;
+        const postFields = `_id, _type, title, slug, category, status, _createdAt, excerpt, body, readTime, coverImageUrl, links, author`;
         const storedLinkFields = `_id, _type, title, amount, url, _createdAt`;
 
         let fields = postFields;

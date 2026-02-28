@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import styles from '../page.module.css';
+import { useModal } from '@/components/ui/PremiumModal';
 
 interface StoredLink {
     _id: string;
@@ -14,6 +15,7 @@ export default function PayLinkStore() {
     const [links, setLinks] = useState<StoredLink[]>([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const { confirm, alert } = useModal();
 
     // Form state
     const [title, setTitle] = useState('');
@@ -60,18 +62,25 @@ export default function PayLinkStore() {
     };
 
     const handleDelete = async (id: string, name: string) => {
-        if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
-        await fetch('/api/admin/sanity', {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id })
+        confirm({
+            title: `Delete "${name}"?`,
+            message: 'This payment link will be removed from Sanity. This cannot be undone.',
+            confirmLabel: 'Delete',
+            variant: 'danger',
+            onConfirm: async () => {
+                await fetch('/api/admin/sanity', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id })
+                });
+                loadLinks();
+            }
         });
-        loadLinks();
     };
 
     const copyToClipboard = (text: string) => {
         navigator.clipboard.writeText(text);
-        alert('Link copied to clipboard!');
+        alert({ title: 'Copied!', message: 'Payment link copied to clipboard.', variant: 'success' });
     };
 
     return (

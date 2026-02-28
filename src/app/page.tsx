@@ -3,6 +3,11 @@ import styles from './page.module.css';
 import StaggeredTitle from '@/components/ui/StaggeredTitle';
 import StepCard from '@/components/ui/StepCard';
 import TerminalBlock from '@/components/ui/TerminalBlock';
+import StatsCounter from '@/components/ui/StatsCounter';
+import TestimonialMarquee from '@/components/ui/TestimonialMarquee';
+import StickyCTA from '@/components/layout/StickyCTA';
+import BeforeAfterSlider from '@/components/ui/BeforeAfterSlider';
+import HealthChecker from '@/components/ui/HealthChecker';
 
 const terminalCode = [
   "> EXE_TOOL INIT --SYSTEM=WIN11",
@@ -13,11 +18,6 @@ const terminalCode = [
   "> DEBLOAT: SUCCESS. 1.2GB RAM freed.",
   "> REGISTRY: SUCCESS. IPC latency reduced by 40%.",
   "> STATUS: Maximum Performance Mode Engaged."
-];
-
-const reviews = [
-  { name: 'Arvind Sharma', rating: 5, body: 'Boot time dropped from 2 minutes to under 20 seconds. Absolutely worth every rupee.' },
-  { name: 'Priya Nair', rating: 5, body: 'My FPS in Valorant jumped from 60 to 110. No latency spikes, no frame drops.' },
 ];
 
 export default function Home() {
@@ -41,6 +41,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── LIVE STATS STRIP ── */}
+      <StatsCounter />
+
       {/* ── PROCESS / STEP CARDS ── */}
       <section className={`container ${styles.stepsSection}`}>
         <h2 className={styles.sectionHeaderTitle}>Our Optimization Protocol</h2>
@@ -50,6 +53,9 @@ export default function Home() {
           <StepCard step="03" title="Overdrive Tuning" description="Injecting custom registry directives to prioritize gaming and heavy workloads, bypassing default OS throttling mechanisms." />
         </div>
       </section>
+
+      {/* ── BEFORE / AFTER INTERACTIVE SLIDER ── */}
+      <BeforeAfterSlider />
 
       {/* ── TWO-COLUMN TERMINAL / STATS GRID ── */}
       <section className={`container ${styles.techSection}`}>
@@ -92,19 +98,14 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── REVIEWS (Minimalist update) ── */}
-      <section className={`container ${styles.reviewsSection}`}>
-        <h2 className={styles.sectionHeaderTitle} style={{ textAlign: 'center', marginBottom: '3rem' }}>Customer Telemetry</h2>
-        <div className={styles.reviewsGrid}>
-          {reviews.map((r, i) => (
-            <div key={i} className={styles.reviewCard}>
-              <div className={styles.reviewStars}>★★★★★</div>
-              <p className={styles.reviewBody}>"{r.body}"</p>
-              <div className={styles.reviewerName}>— {r.name}</div>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* ── INTERACTIVE PC HEALTH CHECKER ── */}
+      <HealthChecker />
+
+      {/* ── REVIEWS (Marquee) ── */}
+      <TestimonialMarquee />
+
+      {/* ── STICKY BUY BAR ── */}
+      <StickyCTA />
 
     </div>
   );

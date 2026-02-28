@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import styles from '../page.module.css';
+import { useModal } from '@/components/ui/PremiumModal';
 
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -12,6 +13,7 @@ export default function AdminReviewsPage() {
     const [reviews, setReviews] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
+    const { confirm } = useModal();
 
     const load = () => {
         setLoading(true);
@@ -28,9 +30,16 @@ export default function AdminReviewsPage() {
     };
 
     const deleteReview = async (id: string) => {
-        if (!confirm('Permanently delete this review?')) return;
-        await fetch('/api/admin/reviews', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
-        load();
+        confirm({
+            title: 'Delete Review?',
+            message: 'This will permanently remove the review. This cannot be undone.',
+            confirmLabel: 'Delete',
+            variant: 'danger',
+            onConfirm: async () => {
+                await fetch('/api/admin/reviews', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+                load();
+            }
+        });
     };
 
     return (

@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import styles from '../page.module.css';
+import { useModal } from '@/components/ui/PremiumModal';
 
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -13,6 +14,7 @@ export default function AdminCouponsPage() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [msg, setMsg] = useState('');
+    const { confirm } = useModal();
     const [form, setForm] = useState({
         code: '', discount_percentage: '', max_uses: '', valid_until: '', global_coupon: true, product_id: ''
     });
@@ -54,9 +56,16 @@ export default function AdminCouponsPage() {
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm('Delete this coupon?')) return;
-        await supabase.from('coupons').delete().eq('id', id);
-        load();
+        confirm({
+            title: 'Delete Coupon?',
+            message: 'This will permanently remove the coupon code and it will no longer be usable.',
+            confirmLabel: 'Delete',
+            variant: 'danger',
+            onConfirm: async () => {
+                await supabase.from('coupons').delete().eq('id', id);
+                load();
+            }
+        });
     };
 
     return (

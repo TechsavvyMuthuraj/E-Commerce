@@ -1,9 +1,11 @@
+/* ── Products (Industrial Vault) ─────────── */
+
 .page {
-    padding: 4rem 2rem;
-    padding-bottom: 120px;
+    padding: 4rem 2rem 8rem;
     min-height: calc(100vh - 80px);
 }
 
+/* ── Page Header ─────────────────────────── */
 .header {
     display: flex;
     justify-content: space-between;
@@ -11,45 +13,229 @@
     margin-bottom: 3rem;
     flex-wrap: wrap;
     gap: 1.5rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 2rem;
 }
 
 .header h1 {
-    font-size: 3rem;
+    font-family: var(--font-bebas);
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    letter-spacing: 4px;
+    text-transform: uppercase;
     margin: 0;
-    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    background: linear-gradient(135deg, var(--gold) 0%, #fff5c0 50%, var(--gold-dim) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
+/* ── Filters ─────────────────────────────── */
 .filters {
     display: flex;
-    gap: 1rem;
+    gap: 0.75rem;
+    flex-wrap: wrap;
 }
 
 .select {
-    background: var(--card-bg);
+    background: var(--bg-secondary);
     color: var(--foreground);
     border: 1px solid var(--border);
-    padding: 0.75rem 1.5rem;
-    font-family: var(--font-heading);
+    padding: 0.6rem 1.2rem;
+    font-family: var(--font-mono);
     text-transform: uppercase;
-    font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.78rem;
     cursor: pointer;
     outline: none;
-    letter-spacing: 1px;
+    letter-spacing: 2px;
+    transition: border-color 0.2s ease;
+    border-radius: var(--radius);
 }
 
 .select:hover,
 .select:focus {
     border-color: var(--accent);
+    color: var(--accent);
 }
 
 .select option {
-    background: var(--card-bg);
+    background: var(--bg-secondary);
     color: var(--foreground);
 }
 
+/* ── Product Grid ────────────────────────── */
 .productGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
     gap: 2rem;
+}
+
+/* ── Product Card (Industrial Vault) ─────── */
+.card {
+    background: linear-gradient(160deg, #141414 0%, #0d0d0d 100%);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--gold);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    cursor: pointer;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(240, 165, 0, 0.03) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 30px rgba(240, 165, 0, 0.12);
+    border-color: rgba(240, 165, 0, 0.4);
+}
+
+/* ── Image area ──────────────────────────── */
+.cardImage {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: var(--bg-secondary);
+    position: relative;
+    overflow: hidden;
+}
+
+.cardImage img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+    filter: brightness(0.85) saturate(0.7);
+}
+
+.card:hover .cardImage img {
+    transform: scale(1.05);
+    filter: brightness(0.95) saturate(1);
+}
+
+.cardImagePlaceholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-bebas);
+    font-size: 3rem;
+    color: rgba(240, 165, 0, 0.15);
+    letter-spacing: 4px;
+}
+
+/* ── Badge ───────────────────────────────── */
+.newBadge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: var(--danger);
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    padding: 3px 8px;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+/* ── Card Body ───────────────────────────── */
+.cardBody {
+    padding: 1.5rem;
+}
+
+.cardCategory {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+    opacity: 0.8;
+}
+
+.cardTitle {
+    font-family: var(--font-bebas);
+    font-size: 1.6rem;
+    letter-spacing: 2px;
+    color: var(--foreground);
+    margin-bottom: 0.5rem;
+    line-height: 1.1;
+}
+
+.cardDesc {
+    font-family: var(--font-ibm-mono);
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* ── Card Footer ─────────────────────────── */
+.cardFooter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    margin-top: auto;
+}
+
+.cardPrice {
+    font-family: var(--font-mono);
+    color: var(--gold);
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.cardPriceOriginal {
+    font-size: 0.75rem;
+    text-decoration: line-through;
+    color: var(--muted-dark);
+    margin-right: 0.5rem;
+}
+
+.cardCta {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--bg-primary);
+    background: var(--gold);
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.cardCta:hover {
+    background: #fff;
+    color: #000;
+}
+
+/* ── Empty State ─────────────────────────── */
+.emptyState {
+    text-align: center;
+    padding: 5rem 2rem;
+    color: var(--muted);
+    grid-column: 1 / -1;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+@media (max-width: 640px) {
+    .productGrid {
+        grid-template-columns: 1fr;
+    }
 }

@@ -2,12 +2,15 @@
 import { useState, useEffect, useRef } from 'react';
 import styles from '../page.module.css';
 import PremiumBlogRenderer from '@/components/ui/PremiumBlogRenderer';
+import SEOAnalyzer from '@/components/ui/SEOAnalyzer';
+import { useModal } from '@/components/ui/PremiumModal';
 
 interface BlogDoc {
     _id: string;
     title: string;
     slug?: { current: string };
     category?: string;
+    status?: string;
     _createdAt: string;
 }
 
@@ -15,7 +18,7 @@ interface LinkItem { label: string; url: string; }
 
 const EMPTY_FORM = {
     title: '', slug: '', category: 'Windows Tips', excerpt: '',
-    body: '', readTime: '5 min read',
+    body: '', readTime: '5 min read', status: 'published',
     // social / developer
     authorTwitter: '', authorGithub: '', authorLinkedin: '', authorYoutube: '', authorWebsite: '',
 };
@@ -39,6 +42,7 @@ export default function AdminBlogsPage() {
     const [coverPreview, setCoverPreview] = useState('');
     const [uploading, setUploading] = useState(false);
     const fileRef = useRef<HTMLInputElement>(null);
+    const { confirm } = useModal();
 
     // Inline links
     const [links, setLinks] = useState<LinkItem[]>([]);
@@ -101,6 +105,7 @@ export default function AdminBlogsPage() {
             title: form.title,
             slug: { _type: 'slug', current: slug },
             category: form.category,
+            status: form.status,
             excerpt: form.excerpt,
             body: form.body,
             readTime: form.readTime,
@@ -145,15 +150,22 @@ export default function AdminBlogsPage() {
 
     const handleEdit = (doc: BlogDoc) => {
         setEditId(doc._id);
-        setForm({ ...EMPTY_FORM, title: doc.title || '', slug: doc.slug?.current || '', category: doc.category || 'Windows Tips' });
+        setForm({ ...EMPTY_FORM, title: doc.title || '', slug: doc.slug?.current || '', category: doc.category || 'Windows Tips', status: doc.status || 'published' });
         setTab('write');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm('Delete this blog post from Sanity?')) return;
-        await fetch('/api/admin/sanity', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
-        loadDocs();
+        confirm({
+            title: 'Delete Blog Post?',
+            message: 'This will permanently remove the blog post from Sanity. This cannot be undone.',
+            confirmLabel: 'Delete',
+            variant: 'danger',
+            onConfirm: async () => {
+                await fetch('/api/admin/sanity', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+                loadDocs();
+            }
+        });
     };
 
     /* ── Snippet Injectors ─── */
@@ -194,24 +206,40 @@ export default function AdminBlogsPage() {
 
                         {/* ── Title + Slug ── */}
                         <div className={styles.fieldRow}>
-                            <div className={styles.field}>
+                            <div className={styles.field} style={{ flex: 2 }}>
                                 <label>Post Title *</label>
                                 <input required value={form.title} onChange={f('title')} placeholder="e.g. How to Speed Up Windows 11 in 10 Steps" />
                             </div>
+                            <div className={styles.field} style={{ flex: 1 }}>
+                                <label>Status</label>
+                                <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', textTransform: 'none' }}>
+                                        <input type="radio" name="status" value="published" checked={form.status === 'published'} onChange={f('status')} />
+                                        <span style={{ color: form.status === 'published' ? '#4CAF50' : '#888' }}>Published</span>
+                                    </label>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', textTransform: 'none' }}>
+                                        <input type="radio" name="status" value="draft" checked={form.status === 'draft'} onChange={f('status')} />
+                                        <span style={{ color: form.status === 'draft' ? '#FFC107' : '#888' }}>Draft</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className={styles.fieldRow}>
                             <div className={styles.field}>
                                 <label>Slug (auto-generated if empty)</label>
                                 <input value={form.slug} onChange={f('slug')} placeholder="how-to-speed-up-windows-11" />
                             </div>
-                        </div>
-
-                        {/* ── Category + Read Time ── */}
-                        <div className={styles.fieldRow}>
                             <div className={styles.field}>
                                 <label>Category</label>
                                 <select value={form.category} onChange={f('category')}>
                                     {CATEGORIES.map(c => <option key={c}>{c}</option>)}
                                 </select>
                             </div>
+                        </div>
+
+                        {/* ── Read Time ── */}
+                        <div className={styles.fieldRow}>
                             <div className={styles.field}>
                                 <label>Read Time</label>
                                 <input value={form.readTime} onChange={f('readTime')} placeholder="5 min read" />
@@ -263,27 +291,34 @@ export default function AdminBlogsPage() {
                                 )}
                             </div>
 
-                            {tab === 'write' ? (
-                                <textarea value={form.body} onChange={f('body')}
-                                    placeholder={'## Introduction\n\nWrite your article here...\n\n### Step 1: Open Settings\n\n- Tip one\n- Tip two\n\n[Learn more](https://example.com)'}
-                                    style={{ minHeight: '400px', fontFamily: 'monospace', fontSize: '0.9rem', lineHeight: '1.6' }} />
-                            ) : (
-                                <div style={{ minHeight: '400px', background: '#0a0a0c', border: '1px solid #2a2a2a', padding: '2.5rem', overflowY: 'auto' }}>
-                                    {coverPreview && <img src={coverPreview} alt="Cover" style={{ width: '100%', maxHeight: '400px', objectFit: 'cover', marginBottom: '2.5rem', borderRadius: '4px', border: '1px solid #1e1e1e' }} />}
-                                    <div style={{ color: 'var(--accent)', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.5rem' }}>{form.category}</div>
-                                    <h1 style={{ color: '#fff', fontSize: '2.5rem', marginBottom: '0.5rem', fontFamily: 'var(--font-heading)' }}>{form.title || 'Your Post Title'}</h1>
-                                    {form.excerpt && <p style={{ color: '#666', fontStyle: 'italic', borderLeft: '3px solid var(--accent)', paddingLeft: '1rem', marginBottom: '3rem', fontFamily: 'var(--font-heading)', fontSize: '1.1rem' }}>{form.excerpt}</p>}
+                            <div style={{ display: 'grid', gridTemplateColumns: '2.5fr 1fr', gap: '1.5rem', alignItems: 'start' }}>
+                                {tab === 'write' ? (
+                                    <textarea value={form.body} onChange={f('body')}
+                                        placeholder={'## Introduction\n\nWrite your article here...\n\n### Step 1: Open Settings\n\n- Tip one\n- Tip two\n\n[Learn more](https://example.com)'}
+                                        style={{ minHeight: '500px', fontFamily: 'monospace', fontSize: '0.9rem', lineHeight: '1.6', width: '100%' }} />
+                                ) : (
+                                    <div style={{ minHeight: '500px', background: '#0a0a0c', border: '1px solid #2a2a2a', padding: '2.5rem', overflowY: 'auto', width: '100%' }}>
+                                        {coverPreview && <img src={coverPreview} alt="Cover" style={{ width: '100%', maxHeight: '400px', objectFit: 'cover', marginBottom: '2.5rem', borderRadius: '4px', border: '1px solid #1e1e1e' }} />}
+                                        <div style={{ color: 'var(--accent)', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.5rem' }}>{form.category}</div>
+                                        <h1 style={{ color: '#fff', fontSize: '2.5rem', marginBottom: '0.5rem', fontFamily: 'var(--font-heading)' }}>{form.title || 'Your Post Title'}</h1>
+                                        {form.excerpt && <p style={{ color: '#666', fontStyle: 'italic', borderLeft: '3px solid var(--accent)', paddingLeft: '1rem', marginBottom: '3rem', fontFamily: 'var(--font-heading)', fontSize: '1.1rem' }}>{form.excerpt}</p>}
 
-                                    <PremiumBlogRenderer content={form.body} />
+                                        <PremiumBlogRenderer content={form.body} />
 
-                                    {links.length > 0 && (
-                                        <div style={{ marginTop: '2rem', borderTop: '1px solid #1e1e1e', paddingTop: '1.5rem' }}>
-                                            <div style={{ color: '#555', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '1rem' }}>References & Links</div>
-                                            {links.map((l, i) => <div key={i} style={{ marginBottom: '0.5rem' }}><a href={l.url} style={{ color: 'var(--accent)', textDecoration: 'underline' }} target="_blank" rel="noopener">{l.label} ↗</a></div>)}
-                                        </div>
-                                    )}
+                                        {links.length > 0 && (
+                                            <div style={{ marginTop: '2rem', borderTop: '1px solid #1e1e1e', paddingTop: '1.5rem' }}>
+                                                <div style={{ color: '#555', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '1rem' }}>References & Links</div>
+                                                {links.map((l, i) => <div key={i} style={{ marginBottom: '0.5rem' }}><a href={l.url} style={{ color: 'var(--accent)', textDecoration: 'underline' }} target="_blank" rel="noopener">{l.label} ↗</a></div>)}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* SEO Score floating panel */}
+                                <div style={{ display: tab === 'write' ? 'block' : 'none' }}>
+                                    <SEOAnalyzer title={form.title} excerpt={form.excerpt} body={form.body} />
                                 </div>
-                            )}
+                            </div>
                         </div>
 
                         {/* ── Add Links ── */}
@@ -367,7 +402,9 @@ export default function AdminBlogsPage() {
                                 <span>{doc.title}</span>
                                 <span className={styles.muted}>{doc.category}</span>
                                 <span className={styles.mono}>{doc.slug?.current}</span>
-                                <span className={styles.muted}>{new Date(doc._createdAt).toLocaleDateString()}</span>
+                                <span className={styles.muted}>
+                                    {doc.status === 'draft' ? <span style={{ color: '#FFC107', border: '1px solid #FFC107', padding: '0.1rem 0.4rem', borderRadius: '4px', fontSize: '0.7rem' }}>DRAFT</span> : new Date(doc._createdAt).toLocaleDateString()}
+                                </span>
                                 <div style={{ display: 'flex', gap: '0.4rem' }}>
                                     <button className={styles.approveBtn} onClick={() => handleEdit(doc)}>Edit</button>
                                     <a href={`/blog/${doc.slug?.current}`} target="_blank" rel="noopener">

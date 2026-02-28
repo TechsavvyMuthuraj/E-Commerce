@@ -1,8 +1,9 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import styles from '../page.module.css';
+import { useModal } from '@/components/ui/PremiumModal';
 
-interface PricingTier { name: string; price: number; licenseType: string; downloadLink?: string; paymentLink?: string; }
+interface PricingTier { name: string; price: number; originalPrice?: number; licenseType: string; downloadLink?: string; paymentLink?: string; }
 
 interface GalleryImage {
     assetId: string;
@@ -25,8 +26,8 @@ interface SanityDoc {
 
 const EMPTY_FORM = {
     title: '', slug: '', category: 'Optimization', shortDescription: '',
-    longDescription: '', tier1Name: 'Personal', tier1Price: '', tier1Download: '', tier1PayLink: '',
-    tier2Name: 'Business', tier2Price: '', tier2Download: '', tier2PayLink: ''
+    longDescription: '', tier1Name: 'Personal', tier1Price: '', tier1OriginalPrice: '', tier1Download: '', tier1PayLink: '',
+    tier2Name: 'Business', tier2Price: '', tier2OriginalPrice: '', tier2Download: '', tier2PayLink: ''
 };
 
 export default function AdminProductsPage() {
@@ -35,6 +36,7 @@ export default function AdminProductsPage() {
     const [saving, setSaving] = useState(false);
     const [msg, setMsg] = useState('');
     const [editId, setEditId] = useState<string | null>(null);
+    const { confirm } = useModal();
 
     // Main Image
     const [imageAssetId, setImageAssetId] = useState('');
@@ -127,10 +129,12 @@ export default function AdminProductsPage() {
             longDescription: doc.longDescription || '',
             tier1Name: t1?.name || 'Personal',
             tier1Price: t1?.price?.toString() || '',
+            tier1OriginalPrice: t1?.originalPrice?.toString() || '',
             tier1Download: t1?.downloadLink || '',
             tier1PayLink: t1?.paymentLink || '',
             tier2Name: t2?.name || 'Business',
             tier2Price: t2?.price?.toString() || '',
+            tier2OriginalPrice: t2?.originalPrice?.toString() || '',
             tier2Download: t2?.downloadLink || '',
             tier2PayLink: t2?.paymentLink || '',
         });
@@ -185,6 +189,7 @@ export default function AdminProductsPage() {
                 {
                     name: form.tier1Name,
                     price: Number(form.tier1Price),
+                    ...(form.tier1OriginalPrice ? { originalPrice: Number(form.tier1OriginalPrice) } : {}),
                     licenseType: 'PER',
                     downloadLink: form.tier1Download,
                     paymentLink: form.tier1PayLink
@@ -192,6 +197,7 @@ export default function AdminProductsPage() {
                 ...(form.tier2Price ? [{
                     name: form.tier2Name,
                     price: Number(form.tier2Price),
+                    ...(form.tier2OriginalPrice ? { originalPrice: Number(form.tier2OriginalPrice) } : {}),
                     licenseType: 'BUS',
                     downloadLink: form.tier2Download,
                     paymentLink: form.tier2PayLink
@@ -224,10 +230,17 @@ export default function AdminProductsPage() {
 
     /* ── Delete ────────────────────────── */
     const handleDelete = async (id: string, title: string) => {
-        if (!confirm(`Delete "${title}" from Sanity? This cannot be undone.`)) return;
-        await fetch('/api/admin/sanity', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
-        if (editId === id) handleCancelEdit();
-        loadDocs();
+        confirm({
+            title: `Delete "${title}"?`,
+            message: 'This will permanently remove the product from Sanity. This cannot be undone.',
+            confirmLabel: 'Delete',
+            variant: 'danger',
+            onConfirm: async () => {
+                await fetch('/api/admin/sanity', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+                if (editId === id) handleCancelEdit();
+                loadDocs();
+            }
+        });
     };
 
     const addFeature = (e: React.KeyboardEvent) => {
@@ -346,8 +359,9 @@ export default function AdminProductsPage() {
                         <div style={{ background: 'rgba(255,255,255,0.02)', padding: '1.5rem', border: '1px solid #1a1a1a' }}>
                             <div style={{ fontSize: '0.8rem', color: 'var(--accent)', fontWeight: 600, textTransform: 'uppercase', marginBottom: '1rem', letterSpacing: '1px' }}>License Tier 1</div>
                             <div className={styles.fieldRow}>
-                                <div className={styles.field}><label>Name</label><input value={form.tier1Name} onChange={f('tier1Name')} /></div>
-                                <div className={styles.field}><label>Price (₹)</label><input type="number" required value={form.tier1Price} onChange={f('tier1Price')} /></div>
+                                <div className={styles.field} style={{ flex: 1.5 }}><label>Name</label><input value={form.tier1Name} onChange={f('tier1Name')} /></div>
+                                <div className={styles.field} style={{ flex: 1 }}><label>Offer Price (₹)</label><input type="number" required value={form.tier1Price} onChange={f('tier1Price')} /></div>
+                                <div className={styles.field} style={{ flex: 1 }}><label>Original Price (₹)</label><input type="number" placeholder="Optional MSRP" value={form.tier1OriginalPrice} onChange={f('tier1OriginalPrice')} /></div>
                             </div>
                             <div className={styles.fieldRow} style={{ marginTop: '1rem' }}>
                                 <div className={styles.field}>
@@ -365,8 +379,9 @@ export default function AdminProductsPage() {
                         <div style={{ background: 'rgba(255,255,255,0.02)', padding: '1.5rem', border: '1px solid #1a1a1a', marginTop: '1rem' }}>
                             <div style={{ fontSize: '0.8rem', color: 'var(--accent)', fontWeight: 600, textTransform: 'uppercase', marginBottom: '1rem', letterSpacing: '1px' }}>License Tier 2 (Optional)</div>
                             <div className={styles.fieldRow}>
-                                <div className={styles.field}><label>Name</label><input value={form.tier2Name} onChange={f('tier2Name')} /></div>
-                                <div className={styles.field}><label>Price (₹)</label><input type="number" value={form.tier2Price} onChange={f('tier2Price')} /></div>
+                                <div className={styles.field} style={{ flex: 1.5 }}><label>Name</label><input value={form.tier2Name} onChange={f('tier2Name')} /></div>
+                                <div className={styles.field} style={{ flex: 1 }}><label>Offer Price (₹)</label><input type="number" value={form.tier2Price} onChange={f('tier2Price')} /></div>
+                                <div className={styles.field} style={{ flex: 1 }}><label>Original Price (₹)</label><input type="number" placeholder="Optional MSRP" value={form.tier2OriginalPrice} onChange={f('tier2OriginalPrice')} /></div>
                             </div>
                             {form.tier2Price && (
                                 <div className={styles.fieldRow} style={{ marginTop: '1rem' }}>
@@ -413,7 +428,7 @@ export default function AdminProductsPage() {
                                 </span>
                                 <span className={styles.muted}>{doc.category}</span>
                                 <span className={styles.mono} style={{ fontSize: '0.75rem' }}>{doc.slug?.current}</span>
-                                <span className={styles.muted} style={{ fontSize: '0.78rem' }}>{doc.pricingTiers?.map((t: any) => `₹${t.price}`).join(' / ') || '—'}</span>
+                                <span className={styles.muted} style={{ fontSize: '0.78rem' }}>{doc.pricingTiers?.map((t: any) => `₹${t.price}${t.originalPrice ? ` (was ₹${t.originalPrice})` : ''}`).join(' / ') || '—'}</span>
                                 <span className={styles.muted}>{new Date(doc._createdAt).toLocaleDateString()}</span>
                                 <div style={{ display: 'flex', gap: '0.4rem' }}>
                                     <button className={styles.approveBtn} onClick={() => handleEdit(doc)}>Edit</button>

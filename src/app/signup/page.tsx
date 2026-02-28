@@ -1,15 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import styles from '../login/page.module.css';
+import SignupSuccessModal from './SignupSuccessModal';
 
 export default function SignupPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
 
@@ -18,9 +20,11 @@ export default function SignupPage() {
         setIsLoading(true);
         setError(null);
 
+        // Define redirectUrl outside the try block so it's accessible to setIsSuccess state
+        const params = new URLSearchParams(window.location.search);
+        const redirectUrl = params.get('redirect') || '/dashboard';
+
         try {
-            const params = new URLSearchParams(window.location.search);
-            const redirectUrl = params.get('redirect') || '/dashboard';
 
             const { data, error } = await supabase.auth.signUp({
                 email,
@@ -36,8 +40,8 @@ export default function SignupPage() {
             if (data.session) {
                 router.push(redirectUrl);
             } else {
-                alert('Account created! Check your email to verify (if confirmation enabled), or try logging in.');
-                router.push(`/login?redirect=${encodeURIComponent(redirectUrl)}`);
+                // Show our premium animated success modal
+                setIsSuccess(true);
             }
         } catch (err: any) {
             setError(err.message || 'An error occurred during signup.');
@@ -64,10 +68,21 @@ export default function SignupPage() {
             setError(err.message || 'An error occurred with Google login.');
             setIsLoading(false);
         }
-    };
+    }; // <-- CLOSES handleGoogleLogin correctly
+
+    // We need redirectUrl in scope for the render block too
+    const [currentRedirectUrl, setCurrentRedirectUrl] = useState('/dashboard');
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        setCurrentRedirectUrl(params.get('redirect') || '/dashboard');
+    }, []);
 
     return (
         <div className={`container ${styles.page}`}>
+            {/* If successful, render the premium terminal modal */}
+            {isSuccess && <SignupSuccessModal email={email} redirectUrl={currentRedirectUrl} />}
+
             <div className={styles.authContainer}>
                 <div className={styles.header}>
                     <h1>Initialize Account</h1>

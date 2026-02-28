@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import styles from './page.module.css';
+import Image from 'next/image';
 
 interface BlogPost {
     _id: string;
@@ -15,54 +16,46 @@ interface BlogPost {
     coverImage?: string;
 }
 
-// Fallback static posts (shown when Sanity has no posts yet)
 const FALLBACK_POSTS: BlogPost[] = [
     {
-        _id: 'f1',
-        slug: 'how-to-speed-up-windows-11',
+        _id: 'f1', slug: 'how-to-speed-up-windows-11',
         title: 'How to Speed Up Windows 11 in 10 Steps',
         excerpt: 'Windows 11 ships with a lot of background services that eat RAM and CPU. Here are 10 battle-tested tweaks to reclaim performance.',
-        date: 'February 28, 2026',
-        category: 'Windows Tips',
-        readTime: '5 min read',
-        publishedAt: '2026-02-28',
-        _createdAt: '2026-02-28',
-    } as any,
+        category: 'Windows Tips', readTime: '5 min read',
+        publishedAt: '2026-02-28', _createdAt: '2026-02-28',
+    },
     {
-        _id: 'f2',
-        slug: 'debloat-windows-the-right-way',
+        _id: 'f2', slug: 'debloat-windows-the-right-way',
         title: 'Debloat Windows — The Right Way',
-        excerpt: 'Removing the wrong apps can break Windows Update. This guide shows you which apps are safe to remove and which to leave alone.',
-        date: 'February 20, 2026',
-        category: 'Optimization Guides',
-        readTime: '8 min read',
-        publishedAt: '2026-02-20',
-        _createdAt: '2026-02-20',
-    } as any,
+        excerpt: 'Removing the wrong apps can break Windows Update. This guide shows you which are safe to remove and which to leave alone.',
+        category: 'Optimization Guides', readTime: '8 min read',
+        publishedAt: '2026-02-20', _createdAt: '2026-02-20',
+    },
     {
-        _id: 'f3',
-        slug: 'windows-gaming-performance-guide',
+        _id: 'f3', slug: 'windows-gaming-performance-guide',
         title: 'The Ultimate Windows Gaming Performance Guide',
         excerpt: 'From BIOS settings to GPU driver tweaks — everything you need to squeeze out those extra frames.',
-        date: 'February 10, 2026',
-        category: 'Gaming Performance',
-        readTime: '12 min read',
-        publishedAt: '2026-02-10',
-        _createdAt: '2026-02-10',
-    } as any,
+        category: 'Gaming Performance', readTime: '12 min read',
+        publishedAt: '2026-02-10', _createdAt: '2026-02-10',
+    },
+    {
+        _id: 'f4', slug: 'registry-tweaks-guide',
+        title: 'Registry Tweaks That Actually Work in 2026',
+        excerpt: 'We tested 40+ registry tweaks so you don\'t have to. These are the ones that deliver real improvements.',
+        category: 'Deep Dives', readTime: '10 min read',
+        publishedAt: '2026-02-05', _createdAt: '2026-02-05',
+    },
 ];
 
 function formatDate(dateStr: string) {
     if (!dateStr) return '';
-    try {
-        return new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
-    } catch { return dateStr; }
+    try { return new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }); }
+    catch { return dateStr; }
 }
 
 export default function BlogPage() {
     const [posts, setPosts] = useState<BlogPost[]>([]);
     const [loading, setLoading] = useState(true);
-    const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
     const [usingFallback, setUsingFallback] = useState(false);
 
     const fetchPosts = useCallback(async () => {
@@ -81,77 +74,88 @@ export default function BlogPage() {
             setUsingFallback(true);
         } finally {
             setLoading(false);
-            setLastRefresh(new Date());
         }
     }, []);
 
     useEffect(() => {
         fetchPosts();
-        // Poll every 30 seconds for real-time admin sync
         const interval = setInterval(fetchPosts, 30_000);
         return () => clearInterval(interval);
     }, [fetchPosts]);
 
+    const [featured, ...rest] = posts;
+
     return (
-        <div className={`container ${styles.page}`}>
+        <div className={styles.page}>
+            {/* ── Broadsheet Header ─────────────────── */}
             <div className={styles.header}>
-                <div>
-                    <h1>PC Tips &amp; Guides</h1>
-                    <p className={styles.subtitle}>
-                        Windows optimization tutorials, debloat guides, and tech deep-dives from Muthuraj C.
-                    </p>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                    {!usingFallback && !loading && (
-                        <div style={{ color: 'var(--accent)', fontSize: '0.75rem', fontFamily: 'var(--font-heading)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.3rem' }}>
-                            ● {posts.length} post{posts.length !== 1 ? 's' : ''} from Sanity CMS
-                        </div>
-                    )}
-                    {usingFallback && !loading && (
-                        <div style={{ color: '#555', fontSize: '0.7rem', fontFamily: 'var(--font-heading)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.3rem' }}>
-                            Showing sample posts — publish from Admin → Blog Posts
-                        </div>
-                    )}
-                    <div style={{ color: '#333', fontSize: '0.65rem', fontFamily: 'var(--font-heading)' }}>
-                        Synced {lastRefresh.toLocaleTimeString()}
-                    </div>
-                </div>
+                <h1>PC Tips & Guides</h1>
+                <p className={styles.subtitle}>
+                    {usingFallback
+                        ? '// sample posts — publish from Admin → Blog Posts'
+                        : `// ${posts.length} dispatches from the vault`}
+                </p>
             </div>
 
             {loading ? (
-                <div className={styles.postsList} style={{ color: 'var(--muted)', padding: '3rem 0' }}>
-                    ⏳ Loading articles...
-                </div>
+                <div className={styles.emptyState}>⏳ DECRYPTING ARCHIVE...</div>
+            ) : posts.length === 0 ? (
+                <div className={styles.emptyState}>NO DISPATCHES FOUND</div>
             ) : (
-                <div className={styles.postsList}>
-                    {posts.map(post => (
-                        <Link
-                            href={`/blog/${post.slug || post._id}`}
-                            key={post._id}
-                            className={styles.postCard}
-                        >
-                            <article>
-                                {post.coverImage && (
-                                    <div style={{ height: '180px', background: `url(${post.coverImage}) center/cover`, marginBottom: '1.5rem', border: '1px solid #1e1e1e' }} />
-                                )}
-                                <div className={styles.meta}>
-                                    <span className={styles.category}>{post.category}</span>
-                                    <span className={styles.separator}>•</span>
-                                    <span className={styles.date}>{formatDate(post.publishedAt || post._createdAt)}</span>
-                                    {post.readTime && (
-                                        <>
-                                            <span className={styles.separator}>•</span>
-                                            <span className={styles.readTime}>{post.readTime}</span>
-                                        </>
+                <>
+                    {/* ── Featured Post (full width) ─── */}
+                    {featured && (
+                        <>
+                            <p className={styles.sectionLabel}>— Featured Dispatch</p>
+                            <Link href={`/blog/${featured.slug || featured._id}`} className={styles.featuredPost}>
+                                <div className={styles.featuredImg}>
+                                    {featured.coverImage ? (
+                                        <img src={featured.coverImage} alt={featured.title} />
+                                    ) : (
+                                        <div className={styles.featuredPlaceholder}>EXE<br />TOOL</div>
                                     )}
                                 </div>
-                                <h2 className={styles.title}>{post.title}</h2>
-                                <p className={styles.excerpt}>{post.excerpt}</p>
-                                <div className={styles.readMore}>Read Article <span>→</span></div>
-                            </article>
-                        </Link>
-                    ))}
-                </div>
+                                <div className={styles.featuredContent}>
+                                    <div className={styles.featuredLabel}>{featured.category}</div>
+                                    <h2 className={styles.featuredTitle}>{featured.title}</h2>
+                                    <p className={styles.featuredExcerpt}>{featured.excerpt}</p>
+                                    <div className={styles.featuredMeta}>
+                                        {formatDate(featured.publishedAt || featured._createdAt)}
+                                        {featured.readTime && ` · ${featured.readTime}`}
+                                    </div>
+                                </div>
+                            </Link>
+                        </>
+                    )}
+
+                    {/* ── Grid of remaining posts ─────── */}
+                    {rest.length > 0 && (
+                        <>
+                            <p className={styles.sectionLabel} style={{ marginTop: '3rem' }}>— All Dispatches</p>
+                            <div className={styles.postsList}>
+                                {rest.map(post => (
+                                    <Link href={`/blog/${post.slug || post._id}`} key={post._id} className={styles.postCard}>
+                                        <article>
+                                            {post.coverImage && (
+                                                <div style={{ height: '160px', background: `url(${post.coverImage}) center/cover`, marginBottom: '1.25rem', filter: 'brightness(0.8) saturate(0.5)' }} />
+                                            )}
+                                            <div className={styles.meta}>
+                                                <span className={styles.category}>{post.category}</span>
+                                                <span className={styles.dot}>·</span>
+                                                <span>{formatDate(post.publishedAt || post._createdAt)}</span>
+                                            </div>
+                                            <h2 className={styles.title}>
+                                                <span className={styles.underline}>{post.title}</span>
+                                            </h2>
+                                            <p className={styles.excerpt}>{post.excerpt}</p>
+                                            <div className={styles.readMore}>Read dispatch <span>→</span></div>
+                                        </article>
+                                    </Link>
+                                ))}
+                            </div>
+                        </>
+                    )}
+                </>
             )}
         </div>
     );
