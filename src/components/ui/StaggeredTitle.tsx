@@ -13,12 +13,11 @@ export default function StaggeredTitle({ title, className, delayOffset = 0 }: St
     return (
         <div className={className}>
             {lines.map((line, i) => (
-                <div key={i} style={{ overflow: 'hidden', display: 'flex' }}>
+                <div key={i} style={{ overflow: 'hidden', display: 'flex', justifyContent: 'center' }}>
                     <motion.div
                         initial={{ y: '110%', opacity: 0 }}
-                        whileInView={{ y: 0, opacity: 1 }}
+                        animate={{ y: 0, opacity: 1 }}
                         transition={{ duration: 0.8, delay: delayOffset + i * 0.15, ease: [0.16, 1, 0.3, 1] }}
-                        viewport={{ once: true, margin: '-50px' }}
                         dangerouslySetInnerHTML={{ __html: line }}
                     />
                 </div>

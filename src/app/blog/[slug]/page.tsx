@@ -12,6 +12,8 @@ function formatDate(dateStr: string) {
 }
 
 import PremiumBlogRenderer from '@/components/ui/PremiumBlogRenderer';
+import ProgressBar from '@/components/layout/ProgressBar';
+import DotNav from '@/components/layout/DotNav';
 
 // Social link button
 function SocialBtn({ href, icon, label }: { href: string; icon: string; label: string }) {
@@ -80,6 +82,9 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
 
     return (
         <article className={`container ${styles.postWrapper}`}>
+            <ProgressBar />
+            <DotNav />
+
             {/* Back link */}
             <Link href="/blog" className={styles.backLink}>
                 <span className={styles.arrow}>←</span> Back to Blog
@@ -93,7 +98,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
             </div>
 
             {/* Title */}
-            <h1 className={styles.title}>{post.title}</h1>
+            <h1 id="title" className={styles.title}>{post.title}</h1>
 
             {/* Author line */}
             <p className={styles.author}>
@@ -112,7 +117,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
             )}
 
             {/* Body */}
-            <div className={styles.postContent}>
+            <div id="content" className={styles.postContent}>
                 {post.body
                     ? <PremiumBlogRenderer content={post.body} />
                     : <p className={styles.paragraph} style={{ color: 'var(--muted)' }}>No content yet for this post.</p>
@@ -121,7 +126,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
 
             {/* Reference Links */}
             {links.length > 0 && (
-                <div className={blogStyles.linksSection}>
+                <div id="links" className={blogStyles.linksSection}>
                     <div className={blogStyles.linksSectionTitle}>📎 References &amp; Links</div>
                     <div className={blogStyles.linksList}>
                         {links.map((l, i) => (
@@ -135,7 +140,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
             )}
 
             {/* Developer Card */}
-            <div className={blogStyles.devCard}>
+            <div id="author" className={blogStyles.devCard}>
                 <div className={blogStyles.devCardLeft}>
                     <div className={blogStyles.devAvatar}>M</div>
                 </div>
