@@ -43,7 +43,7 @@ export default function CartDrawer() {
                                         </div>
                                         <div className={styles.itemMeta}>
                                             <span className={styles.tierBadge}>{item.licenseTier}</span>
-                                            <span className={`pricing-code ${styles.price}`}>${item.price}</span>
+                                            <span className={`pricing-code ${styles.price}`}>₹{item.price}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -56,7 +56,7 @@ export default function CartDrawer() {
                     <div className={styles.footer}>
                         <div className={styles.totalRow}>
                             <span>Subtotal</span>
-                            <span className={`pricing-code ${styles.totalPrice}`}>${getCartTotal()}</span>
+                            <span className={`pricing-code ${styles.totalPrice}`}>₹{getCartTotal()}</span>
                         </div>
                         <Link href="/checkout" className={`btn-primary ${styles.checkoutBtn}`} onClick={closeDrawer}>
                             Proceed to Checkout

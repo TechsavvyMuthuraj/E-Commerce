@@ -22,8 +22,11 @@ export default function LoginPage() {
             const { data, error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) throw error;
 
+            const params = new URLSearchParams(window.location.search);
+            const redirectUrl = params.get('redirect') || '/dashboard';
+
             if (data.session) {
-                router.push('/dashboard');
+                router.push(redirectUrl);
             }
         } catch (err: any) {
             setError(err.message || 'An error occurred during login.');
@@ -35,10 +38,13 @@ export default function LoginPage() {
         setIsLoading(true);
         setError(null);
         try {
+            const params = new URLSearchParams(window.location.search);
+            const redirectUrl = params.get('redirect') || '/dashboard';
+
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: `${window.location.origin}/dashboard`
+                    redirectTo: `${window.location.origin}${redirectUrl}`
                 }
             });
             if (error) throw error;
@@ -109,7 +115,10 @@ export default function LoginPage() {
                 </button>
 
                 <p className={styles.footer}>
-                    New personnel? <Link href="/signup" className={styles.accentLink}>Request Access</Link>
+                    New personnel? <button onClick={() => {
+                        const search = typeof window !== 'undefined' ? window.location.search : '';
+                        router.push(`/signup${search}`);
+                    }} className={styles.accentLink} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', font: 'inherit' }}>Request Access</button>
                 </p>
             </div>
         </div>

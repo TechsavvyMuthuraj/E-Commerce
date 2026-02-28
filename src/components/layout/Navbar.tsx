@@ -30,11 +30,12 @@ export default function Navbar() {
         <nav className={styles.navbar}>
             <div className={`container ${styles.navContainer}`}>
                 <Link href="/" className={styles.logo}>
-                    TOOL<span className={styles.accent}>CRAFT</span>
+                    EXE<span className={styles.accent}> TOOL</span>
                 </Link>
                 <div className={styles.navLinks}>
-                    <Link href="/products" className={styles.navLink}>Products</Link>
-                    <Link href="/category/plugins" className={styles.navLink}>Plugins</Link>
+                    <Link href="/products" className={styles.navLink}>All Tools</Link>
+                    <Link href="/category/optimization" className={styles.navLink}>Optimization</Link>
+                    <Link href="/category/debloat" className={styles.navLink}>Debloat</Link>
                     <Link href="/blog" className={styles.navLink}>Blog</Link>
                     <Link href="/contact" className={styles.navLink}>Contact</Link>
                 </div>

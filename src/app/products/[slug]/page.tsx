@@ -3,64 +3,112 @@
 import { useState, use, useEffect } from 'react';
 import { useCartStore } from '@/store/useCartStore';
 import { sanityClient } from '@/lib/sanity';
+import { getProductBySlug } from '@/data/products';
+import ReviewSection from '@/components/ReviewSection';
 import styles from './page.module.css';
-
-// Mock database fallback
-const getMockProduct = (slug: string) => ({
-    id: `mock-${slug}`,
-    slug,
-    title: slug.replace(/-/g, ' ').toUpperCase(),
-    category: 'SaaS',
-    shortDescription: 'The ultimate industrial-grade tool to accelerate your workflow and supercharge your backend setup.',
-    longDescription: 'Engineered for precision and built with performance in mind. This bundle includes everything you need to bootstrap a top-tier project without writing the boilerplate.',
-    features: ['Authentication pre-configured', 'Database schema included', 'High performance caching layer'],
-    pricingTiers: [
-        { name: 'Personal', price: 49, licenseType: 'PER' },
-        { name: 'Commercial', price: 149, licenseType: 'COM' }
-    ],
-    image: 'linear-gradient(45deg, #1A1A1E, #333)'
-});
 
 export default function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = use(params);
     const [product, setProduct] = useState<any>(null);
     const [selectedTier, setSelectedTier] = useState<any>(null);
+    const [activeImage, setActiveImage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const { addItem, openDrawer } = useCartStore();
 
     useEffect(() => {
+        setIsLoading(true);
+
         async function fetchProduct() {
+            // ── 1. Try Sanity CDN (via sanityClient) ──────────────────────────
             try {
-                // Attempt to fetch from real Sanity CMS First
                 const query = `*[_type == "product" && slug.current == $slug][0] {
-                    _id, title, "slug": slug.current, category, shortDescription, longDescription, features, pricingTiers,
-                    "imageUrl": mainImage.asset->url
+                    _id, title, "slug": slug.current, category, shortDescription,
+                    longDescription, features,
+                    pricingTiers[] { name, price, licenseType, downloadLink, paymentLink },
+                    "imageUrl": mainImage.asset->url,
+                    "gallery": gallery[].asset->url
                 }`;
                 const data = await sanityClient.fetch(query, { slug });
 
-                if (data && data.pricingTiers) {
-                    setProduct({ ...data, id: data._id, image: `url(${data.imageUrl}) center/cover` });
-                    setSelectedTier(data.pricingTiers[0]);
-                } else {
-                    // Fallback to mock if Sanity is empty/unconfigured
-                    const mock = getMockProduct(slug);
-                    setProduct(mock);
-                    setSelectedTier(mock.pricingTiers[0]);
+                if (data && data.title) {
+                    const imageVal = data.imageUrl
+                        ? `url(${data.imageUrl}) center/cover`
+                        : 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)';
+                    const product = {
+                        ...data,
+                        id: data._id,
+                        image: imageVal,
+                        pricingTiers: data.pricingTiers || [],
+                        features: data.features || [],
+                        galleryUrls: data.gallery || [],
+                        mainImageUrl: data.imageUrl
+                    };
+                    setProduct(product);
+                    setActiveImage(data.imageUrl);
+                    setSelectedTier((data.pricingTiers || [])[0] || null);
+                    setIsLoading(false);
+                    return;
                 }
-            } catch (err) {
-                // Fallback to mock on network/config error
-                const mock = getMockProduct(slug);
-                setProduct(mock);
-                setSelectedTier(mock.pricingTiers[0]);
-            } finally {
-                setIsLoading(false);
+            } catch (_) {
+                // Sanity SDK not configured — fall through
             }
+
+            // ── 2. Try public /api/products (fetches all Sanity docs via REST) ─
+            try {
+                const res = await fetch('/api/products');
+                const apiData = await res.json();
+                const match = (apiData.products || []).find(
+                    (p: any) => p.slug === slug || p._id === slug
+                );
+                if (match) {
+                    const firstTier = match.pricingTiers?.[0] || null;
+                    const imageVal = match.mainImage
+                        ? `url(${match.mainImage}) center/cover`
+                        : 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)';
+                    const product = {
+                        id: match._id,
+                        slug: match.slug,
+                        title: match.title,
+                        category: match.category || '',
+                        shortDescription: match.shortDescription || '',
+                        longDescription: match.longDescription || '',
+                        features: match.features || [],
+                        pricingTiers: match.pricingTiers || [],
+                        price: firstTier?.price ?? 0,
+                        image: imageVal,
+                        galleryUrls: match.gallery || [],
+                        mainImageUrl: match.mainImage
+                    };
+                    setProduct(product);
+                    setActiveImage(match.mainImage);
+                    setSelectedTier(firstTier);
+                    setIsLoading(false);
+                    return;
+                }
+            } catch (_) {
+                // API fetch failed — fall through
+            }
+
+            // ── 3. Fallback to local static catalog ────────────────────────────
+            const localProduct = getProductBySlug(slug);
+            if (localProduct) {
+                setProduct(localProduct);
+                setSelectedTier(localProduct.pricingTiers[0]);
+            } else {
+                setProduct(null);
+            }
+            setIsLoading(false);
         }
+
         fetchProduct();
     }, [slug]);
 
     const handleAddToCart = () => {
         if (!product || !selectedTier) return;
+
+        // If there's a custom payment link for this tier, we can optionally redirect directly
+        // However, standard flow is cart. We'll add a separate button in the UI for direct link.
+
         addItem({
             id: `${product.slug}-${selectedTier.licenseType}`,
             productId: product.id,
@@ -68,24 +116,59 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
             title: product.title,
             price: selectedTier.price,
             licenseTier: selectedTier.licenseType,
-            image: product.image?.startsWith('http') ? `url(${product.image}) center/cover` : product.image
+            image: product.image,
+            downloadLink: selectedTier.downloadLink
         });
         openDrawer();
     };
 
-    if (isLoading) return <div className={`container ${styles.page}`} style={{ color: 'var(--muted)' }}>Loading Asset Specifications...</div>;
-    if (!product) return <div className={`container ${styles.page}`}>Asset not found.</div>;
+    if (isLoading) {
+        return (
+            <div className={`container ${styles.page}`} style={{ color: 'var(--muted)', paddingTop: '4rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <span style={{ fontSize: '1.5rem', animation: 'spin 1s linear infinite' }}>⏳</span>
+                    Loading product...
+                </div>
+            </div>
+        );
+    }
+
+    if (!product) {
+        return (
+            <div className={`container ${styles.page}`} style={{ paddingTop: '4rem' }}>
+                <h1 style={{ color: 'var(--accent)', fontSize: '2rem', marginBottom: '1rem' }}>Product Not Found</h1>
+                <p style={{ color: 'var(--muted)', marginBottom: '2rem' }}>
+                    The product <code style={{ background: '#111', padding: '0.2rem 0.5rem' }}>{slug}</code> could not be found in the catalog or Sanity CMS.
+                </p>
+                <a href="/products" className="btn-primary">← Browse All Products</a>
+            </div>
+        );
+    }
 
     return (
         <div className={`container ${styles.page}`}>
             <div className={styles.grid}>
                 <div className={styles.galleryPhase}>
-                    <div className={styles.mainImage} style={{ background: product.image }}></div>
-                    <div className={styles.thumbnails}>
-                        <div className={styles.thumbnail} style={{ background: 'linear-gradient(to right, #111, #222)' }}></div>
-                        <div className={styles.thumbnail} style={{ background: 'linear-gradient(to bottom, #111, #222)' }}></div>
-                        <div className={styles.thumbnail} style={{ background: 'linear-gradient(to top, #111, #222)' }}></div>
-                    </div>
+                    <div className={styles.mainImage} style={{ background: activeImage ? `url(${activeImage}) center/cover` : product.image }}></div>
+                    {(product.galleryUrls?.length > 0 || product.mainImageUrl) && (
+                        <div className={styles.thumbnails}>
+                            {product.mainImageUrl && (
+                                <div
+                                    className={`${styles.thumbnail} ${activeImage === product.mainImageUrl ? styles.activeThumbnail : ''}`}
+                                    style={{ background: `url(${product.mainImageUrl}) center/cover` }}
+                                    onClick={() => setActiveImage(product.mainImageUrl)}
+                                ></div>
+                            )}
+                            {product.galleryUrls?.map((url: string, i: number) => (
+                                <div
+                                    key={i}
+                                    className={`${styles.thumbnail} ${activeImage === url ? styles.activeThumbnail : ''}`}
+                                    style={{ background: `url(${url}) center/cover` }}
+                                    onClick={() => setActiveImage(url)}
+                                ></div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 <div className={styles.contentPhase}>
@@ -95,43 +178,73 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                         <p className={styles.shortDesc}>{product.shortDescription}</p>
                     </div>
 
-                    <div className={styles.pricingSection}>
-                        <h3 className={styles.sectionTitle}>License Option</h3>
-                        <div className={styles.tiersGrid}>
-                            {product.pricingTiers.map((tier: { licenseType: string; name: string; price: number }) => (
-                                <div
-                                    key={tier.licenseType}
-                                    className={`${styles.tierCard} ${selectedTier.licenseType === tier.licenseType ? styles.activeTier : ''}`}
-                                    onClick={() => setSelectedTier(tier)}
-                                >
-                                    <div className={styles.tierName}>{tier.name}</div>
-                                    <div className={`pricing-code ${styles.tierPrice}`}>${tier.price}</div>
-                                </div>
-                            ))}
+                    {product.pricingTiers?.length > 0 && (
+                        <div className={styles.pricingSection}>
+                            <h3 className={styles.sectionTitle}>License Option</h3>
+                            <div className={styles.tiersGrid}>
+                                {product.pricingTiers.map((tier: { licenseType: string; name: string; price: number }) => (
+                                    <div
+                                        key={tier.licenseType}
+                                        className={`${styles.tierCard} ${selectedTier?.licenseType === tier.licenseType ? styles.activeTier : ''}`}
+                                        onClick={() => setSelectedTier(tier)}
+                                    >
+                                        <div className={styles.tierName}>{tier.name}</div>
+                                        <div className={`pricing-code ${styles.tierPrice}`}>₹{tier.price}</div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                    </div>
+                    )}
 
-                    <div className={styles.actionSection}>
-                        <div className={styles.selectedPrice}>
-                            <span className={styles.priceLabel}>Total</span>
-                            <span className={`pricing-code ${styles.finalPrice}`}>${selectedTier.price}</span>
+                    {selectedTier && (
+                        <div className={styles.actionSection}>
+                            <div className={styles.selectedPrice}>
+                                <div className={styles.priceLabel}>Price for {selectedTier.name}</div>
+                                <div className={styles.finalPrice}>₹{selectedTier.price}</div>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', flexGrow: 1 }}>
+                                <button className={`btn-primary ${styles.addToCartBtn}`} onClick={handleAddToCart} style={{ margin: 0 }}>
+                                    Add to Cart
+                                </button>
+                                {selectedTier.paymentLink && (
+                                    <a
+                                        href={selectedTier.paymentLink}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="btn-secondary"
+                                        style={{ textAlign: 'center', fontSize: '1rem', padding: '0.75rem' }}
+                                    >
+                                        Buy Now (Direct Link) ↗
+                                    </a>
+                                )}
+                            </div>
                         </div>
-                        <button className={`btn-primary ${styles.addToCartBtn}`} onClick={handleAddToCart}>
-                            Add to Cart
-                        </button>
-                    </div>
+                    )}
 
                     <div className={styles.detailsSection}>
-                        <h3 className={styles.sectionTitle}>Description</h3>
-                        <p className={styles.longDesc}>{product.longDescription}</p>
+                        {product.longDescription && (
+                            <>
+                                <h3 className={styles.sectionTitle}>Description</h3>
+                                <p className={styles.longDesc}>{product.longDescription}</p>
+                            </>
+                        )}
 
-                        <h3 className={styles.sectionTitle}>Features</h3>
-                        <ul className={styles.featureList}>
-                            {product.features.map((feature: string, i: number) => (
-                                <li key={i}>{feature}</li>
-                            ))}
-                        </ul>
+                        {product.features?.length > 0 && (
+                            <>
+                                <h3 className={styles.sectionTitle}>Features Included</h3>
+                                <ul className={styles.featureList}>
+                                    {product.features.map((feature: string, i: number) => (
+                                        <li key={i}>
+                                            <span style={{ color: 'var(--accent)', marginRight: '0.5rem' }}>✓</span>
+                                            {feature}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </>
+                        )}
                     </div>
+
+                    <ReviewSection productId={product.id} />
                 </div>
             </div>
         </div>

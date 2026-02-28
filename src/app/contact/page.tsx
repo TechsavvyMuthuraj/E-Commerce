@@ -86,7 +86,7 @@ export default function ContactPage() {
                         </div>
                         <div className={styles.infoCard}>
                             <h3>Direct Email Bypass</h3>
-                            <p>support@toolcraft.io</p>
+                            <p>support@exe-tool.com</p>
                         </div>
                         <div className={styles.infoCard}>
                             <h3>Command Center Hours</h3>
@@ -102,7 +102,7 @@ export default function ContactPage() {
                             <div className={styles.successIcon}>✓</div>
                             <h2>Transmission Received</h2>
                             <p className={styles.tagline} style={{ margin: '1rem auto' }}>
-                                Your request has been logged into the ToolCraft matrix.
+                                Your request has been logged into the EXE TOOL system.
                                 An automated confirmation has been dispatched to <strong>{formData.email}</strong>.
                             </p>
 

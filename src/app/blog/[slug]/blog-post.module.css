@@ -1,0 +1,246 @@
+/* ── Cover Image ─────────────────────────────── */
+.coverImage {
+    width: 100%;
+    height: 340px;
+    background-size: cover;
+    background-position: center;
+    border: 1px solid #1e1e1e;
+    margin: 2rem 0;
+    position: relative;
+}
+
+/* ── Pull Quote ──────────────────────────────── */
+.pullQuote {
+    border-left: 4px solid var(--accent);
+    background: #090909;
+    padding: 1.25rem 1.75rem;
+    margin: 1.5rem 0 2.5rem;
+    color: #888;
+    font-style: italic;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    border-radius: 0 4px 4px 0;
+}
+
+/* ── Body Content ────────────────────────────── */
+.h2 {
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
+    color: var(--foreground);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #1e1e1e;
+}
+
+.h3 {
+    font-family: var(--font-heading);
+    font-size: 1.35rem;
+    color: var(--foreground);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 2rem 0 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--accent);
+}
+
+.h3::before {
+    content: '//';
+    font-family: var(--font-mono);
+    color: #333;
+    font-size: 1rem;
+}
+
+.paragraph {
+    color: #b0b0b0;
+    font-size: 1.1rem;
+    line-height: 1.85;
+    margin: 0 0 0.5rem;
+}
+
+.list {
+    list-style: none;
+    padding: 1.5rem;
+    background: #080808;
+    border: 1px solid #1e1e1e;
+    border-left: 3px solid var(--accent);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 0.5rem 0;
+}
+
+.list li {
+    color: #aaa;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.list li::before {
+    content: '›';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: 900;
+    font-size: 1.1rem;
+}
+
+.inlineLink {
+    color: var(--accent) !important;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: opacity 0.2s;
+}
+
+.inlineLink:hover {
+    opacity: 0.75;
+}
+
+/* ── Reference Links Section ─────────────────── */
+.linksSection {
+    margin: 3rem 0;
+    padding: 1.5rem;
+    border: 1px solid #1e1e1e;
+    background: #060606;
+}
+
+.linksSectionTitle {
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.8rem;
+    color: #555;
+    margin-bottom: 1rem;
+}
+
+.linksList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.refLink {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--accent);
+    font-size: 0.95rem;
+    text-decoration: none;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #1a1a1a;
+    background: #090909;
+    transition: all 0.2s;
+}
+
+.refLink:hover {
+    border-color: var(--accent);
+    background: rgba(245, 166, 35, 0.06);
+    transform: translateX(4px);
+}
+
+.refLinkIcon {
+    font-family: var(--font-mono);
+    color: #555;
+    font-size: 0.85rem;
+    transition: color 0.2s;
+}
+
+.refLink:hover .refLinkIcon {
+    color: var(--accent);
+}
+
+/* ── Developer Card ──────────────────────────── */
+.devCard {
+    display: flex;
+    gap: 1.75rem;
+    align-items: flex-start;
+    background: #080808;
+    border: 1px solid #1e1e1e;
+    border-top: 3px solid var(--accent);
+    padding: 2rem;
+    margin: 3rem 0;
+}
+
+.devCardLeft {
+    flex-shrink: 0;
+}
+
+.devAvatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #c07a00);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    font-weight: 900;
+    color: #000;
+    border: 2px solid rgba(245, 166, 35, 0.3);
+}
+
+.devInfo {
+    flex: 1;
+}
+
+.devName {
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--foreground);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+}
+
+.devBio {
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+}
+
+.devSocials {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.socialBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.9rem;
+    border: 1px solid #2a2a2a;
+    background: #0d0d0f;
+    color: #888;
+    text-decoration: none;
+    font-family: var(--font-heading);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+}
+
+.socialBtn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(245, 166, 35, 0.06);
+    transform: translateY(-2px);
+}
+
+.socialIcon {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+.socialLabel {
+    font-size: 0.7rem;
+}

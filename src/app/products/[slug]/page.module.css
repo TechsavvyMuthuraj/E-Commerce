@@ -45,7 +45,8 @@
 }
 
 .thumbnail:hover,
-.thumbnail.active {
+.thumbnail.active,
+.activeThumbnail {
     opacity: 1;
     border-color: var(--accent);
 }

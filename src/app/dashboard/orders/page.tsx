@@ -124,7 +124,7 @@ export default function OrdersPage() {
                                     <td className={`pricing-code ${styles.orderId}`}>{order.id}</td>
                                     <td>{order.date}</td>
                                     <td>{order.items}</td>
-                                    <td className={`pricing-code ${styles.total}`}>${order.total}</td>
+                                    <td className={`pricing-code ${styles.total}`}>₹{order.total}</td>
                                     <td>
                                         <span className={`${styles.statusBadge} ${styles[order.status.toLowerCase()] || styles.pending}`}>
                                             {order.status}

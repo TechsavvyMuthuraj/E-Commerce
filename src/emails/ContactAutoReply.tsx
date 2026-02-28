@@ -12,7 +12,7 @@ export const ContactAutoReply = ({ name, subject, ticketId }: ContactAutoReplyPr
             <Head />
             <Body style={main}>
                 <Container style={container}>
-                    <Heading style={heading}>Message Received — ToolCraft System</Heading>
+                    <Heading style={heading}>Message Received — EXE TOOL</Heading>
                     <Text style={text}>
                         Operator {name}, <br /> <br />
                         This is an automated system response to confirm we have received your direct transmission regarding: <br />
@@ -28,12 +28,12 @@ export const ContactAutoReply = ({ name, subject, ticketId }: ContactAutoReplyPr
                         Our engineers will review your logs and follow up with you on this channel shortly. In the meantime, you can review our live architecture below:
                     </Text>
                     <Section style={linkContainer}>
-                        <Link href="http://localhost:3000/products" style={quickLink}>ToolCraft Catalog</Link>
+                        <Link href="http://localhost:3000/products" style={quickLink}>EXE TOOL Catalog</Link>
                         <Link href="http://localhost:3000/dashboard" style={quickLink}>Operator Dashboard</Link>
                     </Section>
                     <Hr style={hr} />
                     <Text style={footer}>
-                        ToolCraft Systems Inc. | Engineered for Precision
+                        EXE TOOL | Premium Windows Software
                     </Text>
                 </Container>
             </Body>

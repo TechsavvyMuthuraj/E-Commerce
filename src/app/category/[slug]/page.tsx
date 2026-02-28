@@ -1,54 +1,116 @@
+'use client';
+import { useState, useEffect, useMemo } from 'react';
+import { useParams } from 'next/navigation';
 import ProductCard from '@/components/ProductCard';
+import { allProducts, Product } from '@/data/products';
 import styles from '@/app/products/page.module.css';
 
-// Reusing mock products for now, but formatted to filter by category slug
-const mockProducts = [
-    { slug: 'nexus-engine', title: 'Nexus Engine Pro', category: 'SaaS', price: 149, image: 'linear-gradient(45deg, #1A1A1E, #333)' },
-    { slug: 'quantum-ui', title: 'Quantum UI Kit', category: 'Templates', price: 79, image: 'linear-gradient(135deg, #252528, #1A1A1E)' },
-    { slug: 'forge-cli', title: 'Forge CLI Tool', category: 'Tools', price: 29, image: 'linear-gradient(to top, #111, #222)' },
-    { slug: 'strata-dashboard', title: 'Strata Admin Dashboard', category: 'Templates', price: 99, image: 'linear-gradient(to right, #1a1a1e, #111)' },
-    { slug: 'voxel-grid', title: 'Voxel Asset Pack', category: 'Plugins', price: 45, image: 'linear-gradient(120deg, #333, #000)' },
-    { slug: 'auth-layer', title: 'AuthLayer Module', category: 'Tools', price: 59, image: 'linear-gradient(to bottom, #252528, #101010)' }
-];
+type SortOption = 'recommended' | 'price-asc' | 'price-desc' | 'newest';
 
-interface CategoryPageProps {
-    params: Promise<{ slug: string }>;
+function sanityToProduct(doc: any): Product {
+    const firstTier = doc.pricingTiers?.[0];
+    return {
+        id: doc._id,
+        slug: doc.slug || doc._id,
+        title: doc.title || 'Untitled',
+        category: doc.category || 'Optimization',
+        price: firstTier?.price ?? 0,
+        image: doc.mainImage || 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
+        features: doc.features || [],
+        shortDescription: doc.shortDescription || '',
+        longDescription: doc.longDescription || '',
+        pricingTiers: doc.pricingTiers || [],
+        galleryUrls: doc.gallery || [],
+    };
 }
 
-export default async function CategoryPage({ params }: CategoryPageProps) {
-    const resolvedParams = await params;
-    const categorySlug = resolvedParams.slug;
+export default function CategoryPage() {
+    const params = useParams();
+    const categorySlug = (params?.slug as string) || '';
     const normalizedCategory = categorySlug.charAt(0).toUpperCase() + categorySlug.slice(1);
 
-    // Simulated filter (In Sanity, this would be a GROQ query like: *[_type == "product" && category match $category])
-    const filteredProducts = mockProducts.filter(
-        product => product.category.toLowerCase() === categorySlug.toLowerCase()
-    );
+    const [sanityProducts, setSanityProducts] = useState<Product[]>([]);
+    const [loadingRemote, setLoadingRemote] = useState(true);
+    const [sort, setSort] = useState<SortOption>('recommended');
+
+    useEffect(() => {
+        fetch('/api/products')
+            .then(r => r.json())
+            .then(data => {
+                if (data.products?.length > 0) {
+                    setSanityProducts(data.products.map(sanityToProduct));
+                }
+            })
+            .catch(() => { })
+            .finally(() => setLoadingRemote(false));
+    }, []);
+
+    // If Sanity has products → show ONLY Sanity products
+    // If Sanity is empty → fallback to local static catalog
+    const allMerged = useMemo(() => {
+        if (!loadingRemote && sanityProducts.length > 0) {
+            return sanityProducts;
+        }
+        if (loadingRemote) return [];
+        return allProducts;
+    }, [sanityProducts, loadingRemote]);
+
+    const filtered = useMemo(() => {
+        return allMerged.filter(p => p.category.toLowerCase() === categorySlug.toLowerCase());
+    }, [allMerged, categorySlug]);
+
+    const sorted = useMemo(() => {
+        const list = [...filtered];
+        switch (sort) {
+            case 'price-asc': return list.sort((a, b) => a.price - b.price);
+            case 'price-desc': return list.sort((a, b) => b.price - a.price);
+            case 'newest':
+                return list.sort((a, b) => {
+                    const aNew = sanityProducts.find(s => s.slug === a.slug);
+                    const bNew = sanityProducts.find(s => s.slug === b.slug);
+                    if (aNew && !bNew) return -1;
+                    if (!aNew && bNew) return 1;
+                    return 0;
+                });
+            default: return list;
+        }
+    }, [filtered, sort, sanityProducts]);
 
     return (
         <div className={`container ${styles.page}`}>
             <div className={styles.header}>
-                <h1>{normalizedCategory}</h1>
+                <h1>{normalizedCategory} Tools</h1>
                 <div className={styles.filters}>
-                    <select className={styles.select}>
-                        <option>Sort: Recommended</option>
-                        <option>Price: Low to High</option>
-                        <option>Price: High to Low</option>
-                        <option>Newest</option>
+                    <select
+                        className={styles.select}
+                        value={sort}
+                        onChange={e => setSort(e.target.value as SortOption)}
+                    >
+                        <option value="recommended">Sort: Recommended</option>
+                        <option value="price-asc">Price: Low to High</option>
+                        <option value="price-desc">Price: High to Low</option>
+                        <option value="newest">Newest First</option>
                     </select>
                 </div>
             </div>
 
-            {filteredProducts.length === 0 ? (
+            {loadingRemote && sorted.length === 0 ? (
+                <div style={{ color: 'var(--muted)', textAlign: 'center', padding: '3rem 0' }}>⏳ Loading products...</div>
+            ) : sorted.length === 0 ? (
                 <div style={{ color: 'var(--muted)', fontSize: '1.2rem', marginTop: '2rem' }}>
-                    No products found in this category yet.
+                    No products found in <strong>{normalizedCategory}</strong> yet.
                 </div>
             ) : (
-                <div className={styles.productGrid}>
-                    {filteredProducts.map(product => (
-                        <ProductCard key={product.slug} {...product} />
-                    ))}
-                </div>
+                <>
+                    <div className={styles.productGrid}>
+                        {sorted.map(product => (
+                            <ProductCard key={product.slug} {...product} />
+                        ))}
+                    </div>
+                    <div style={{ textAlign: 'center', marginTop: '1.5rem', color: '#333', fontSize: '0.75rem', fontFamily: 'var(--font-heading)' }}>
+                        Showing {sorted.length} product{sorted.length !== 1 ? 's' : ''} in {normalizedCategory}
+                    </div>
+                </>
             )}
         </div>
     );

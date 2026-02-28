@@ -19,22 +19,25 @@ export default function SignupPage() {
         setError(null);
 
         try {
+            const params = new URLSearchParams(window.location.search);
+            const redirectUrl = params.get('redirect') || '/dashboard';
+
             const { data, error } = await supabase.auth.signUp({
                 email,
                 password,
                 options: {
                     // if email confirmation is enabled in Supabase, this would send an email
                     // By default locally, it might confirm automatically or log them in
-                    emailRedirectTo: `${window.location.origin}/dashboard`
+                    emailRedirectTo: `${window.location.origin}${redirectUrl}`
                 }
             });
             if (error) throw error;
 
             if (data.session) {
-                router.push('/dashboard');
+                router.push(redirectUrl);
             } else {
                 alert('Account created! Check your email to verify (if confirmation enabled), or try logging in.');
-                router.push('/login');
+                router.push(`/login?redirect=${encodeURIComponent(redirectUrl)}`);
             }
         } catch (err: any) {
             setError(err.message || 'An error occurred during signup.');
@@ -47,10 +50,13 @@ export default function SignupPage() {
         setIsLoading(true);
         setError(null);
         try {
+            const params = new URLSearchParams(window.location.search);
+            const redirectUrl = params.get('redirect') || '/dashboard';
+
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: `${window.location.origin}/dashboard`
+                    redirectTo: `${window.location.origin}${redirectUrl}`
                 }
             });
             if (error) throw error;

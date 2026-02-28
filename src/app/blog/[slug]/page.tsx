@@ -1,64 +1,199 @@
+'use client';
+import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
-import { use } from 'react';
 import styles from './page.module.css';
+import blogStyles from './blog-post.module.css';
 
-// Mock Blog Post Fetcher
-const getPostDetails = (slug: string) => {
-    return {
-        slug,
-        title: slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-        content: "When we started building the new iteration of our core systems, we realized that the standard approach wasn't going to cut it. We needed sub-millisecond latency, extreme durability, and a developer experience that felt like you were piloting a fighter jet. This log details our choices, the brutal benchmarks, and the final architecture we deployed.\n\n### The Problem with Status Quo\n\nMost frameworks optimize for the 80% use case. That's fine if you're building a simple CRUD app. But when you are processing thousands of concurrent socket connections, standard Node.js garbage collection becomes your biggest enemy.\n\n### Enter Rust (and a bit of Go)\n\nWe didn't rewrite everything. We aggressively identified the hot paths — specifically the payload parsing and the WebSocket handshakes — and moved them to Rust modules... \n\n### The Benchmark Results\n* Latency dropped by 45%\n* Memory usage flatlined at 120MB per node\n* Developer happiness... unmeasurable.",
-        date: 'February 24, 2026',
-        author: 'Systems Team',
-        category: 'Engineering',
-        readTime: '5 min read'
-    };
-};
+function formatDate(dateStr: string) {
+    if (!dateStr) return '';
+    try {
+        return new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+    } catch { return dateStr; }
+}
+
+// Renders body text with markdown support + clickable links
+function renderBody(body: string) {
+    if (!body) return null;
+    return body.split('\n\n').map((block, i) => {
+        // Replace [text](url) with anchor tags
+        const withLinks = block.replace(
+            /\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g,
+            `<a href="$2" target="_blank" rel="noopener noreferrer" class="${blogStyles.inlineLink}">$1 ↗</a>`
+        );
+
+        if (block.startsWith('### ')) return (
+            <h3 key={i} className={blogStyles.h3}>{block.slice(4)}</h3>
+        );
+        if (block.startsWith('## ')) return (
+            <h2 key={i} className={blogStyles.h2}>{block.slice(3)}</h2>
+        );
+        if (block.startsWith('- ') || block.startsWith('* ')) {
+            return (
+                <ul key={i} className={blogStyles.list}>
+                    {block.split('\n').map((item, j) => (
+                        <li key={j} dangerouslySetInnerHTML={{ __html: item.replace(/^[-*]\s/, '').replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g, `<a href="$2" target="_blank" rel="noopener" class="${blogStyles.inlineLink}">$1 ↗</a>`) }} />
+                    ))}
+                </ul>
+            );
+        }
+        return <p key={i} className={blogStyles.paragraph} dangerouslySetInnerHTML={{ __html: withLinks }} />;
+    });
+}
+
+// Social link button
+function SocialBtn({ href, icon, label }: { href: string; icon: string; label: string }) {
+    if (!href) return null;
+    const url = href.startsWith('http') ? href : `https://${href}`;
+    return (
+        <a href={url} target="_blank" rel="noopener noreferrer" className={blogStyles.socialBtn} title={label}>
+            <span className={blogStyles.socialIcon}>{icon}</span>
+            <span className={blogStyles.socialLabel}>{label}</span>
+        </a>
+    );
+}
 
 export default function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = use(params);
-    const post = getPostDetails(slug);
+    const [post, setPost] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+    const [copied, setCopied] = useState(false);
+
+    useEffect(() => {
+        setLoading(true);
+        fetch('/api/blog', { cache: 'no-store' })
+            .then(r => r.json())
+            .then(data => {
+                const match = (data.posts || []).find(
+                    (p: any) => p.slug === slug || p._id === slug
+                );
+                setPost(match || null);
+            })
+            .catch(() => setPost(null))
+            .finally(() => setLoading(false));
+    }, [slug]);
+
+    const handleCopy = () => {
+        navigator.clipboard?.writeText(window.location.href);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    if (loading) {
+        return (
+            <article className={`container ${styles.postWrapper}`}>
+                <div style={{ color: 'var(--muted)', padding: '4rem 0', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <span style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}>⏳</span> Loading article...
+                </div>
+            </article>
+        );
+    }
+
+    if (!post) {
+        return (
+            <article className={`container ${styles.postWrapper}`}>
+                <Link href="/blog" className={styles.backLink}><span className={styles.arrow}>←</span> Back to Blog</Link>
+                <h1 className={styles.title} style={{ color: 'var(--accent)', fontSize: '2rem', marginTop: '2rem' }}>Post Not Found</h1>
+                <p style={{ color: 'var(--muted)', margin: '1rem 0 2rem' }}>
+                    <code style={{ background: '#111', padding: '0.2rem 0.5rem' }}>{slug}</code> — this post may not be published yet. Check Admin → Blog Posts.
+                </p>
+                <Link href="/blog" className="btn-primary">← Browse All Posts</Link>
+            </article>
+        );
+    }
+
+    const coverImg = post.coverImageUrl || post.coverImage;
+    const author = post.author || {};
+    const links: { label: string; url: string }[] = post.links || [];
 
     return (
         <article className={`container ${styles.postWrapper}`}>
-            <div className={styles.postHeader}>
-                <Link href="/blog" className={styles.backLink}>
-                    <span className={styles.arrow}>←</span> Back to Dispatch Log
-                </Link>
+            {/* Back link */}
+            <Link href="/blog" className={styles.backLink}>
+                <span className={styles.arrow}>←</span> Back to Blog
+            </Link>
 
-                <div className={styles.metaData}>
-                    <span className={styles.categoryBadge}>{post.category}</span>
-                    <span className={styles.metaText}>{post.date}</span>
-                    <span className={styles.metaText}>{post.readTime}</span>
-                </div>
-
-                <h1 className={styles.title}>{post.title}</h1>
-                <p className={styles.author}>Transmission from: <strong>{post.author}</strong></p>
+            {/* Meta */}
+            <div className={styles.metaData}>
+                {post.category && <span className={styles.categoryBadge}>{post.category}</span>}
+                <span className={styles.metaText}>{formatDate(post.publishedAt || post._createdAt)}</span>
+                {post.readTime && <span className={styles.metaText}>{post.readTime}</span>}
             </div>
 
+            {/* Title */}
+            <h1 className={styles.title}>{post.title}</h1>
+
+            {/* Author line */}
+            <p className={styles.author}>
+                By <strong>Muthuraj C</strong>
+                {author.twitter && <> · <a href={author.twitter} target="_blank" rel="noopener" style={{ color: 'var(--accent)' }}>@{author.twitter.split('/').pop()}</a></>}
+            </p>
+
+            {/* Cover image */}
+            {coverImg && (
+                <div className={blogStyles.coverImage} style={{ backgroundImage: `url(${coverImg})` }} />
+            )}
+
+            {/* Excerpt pull-quote */}
+            {post.excerpt && (
+                <blockquote className={blogStyles.pullQuote}>{post.excerpt}</blockquote>
+            )}
+
+            {/* Body */}
             <div className={styles.postContent}>
-                {/* Render simple mock markdown layout */}
-                {post.content.split('\n\n').map((paragraph, index) => {
-                    if (paragraph.startsWith('###')) {
-                        return <h3 key={index} className={styles.sectionTitle}>{paragraph.replace('###', '').trim()}</h3>;
-                    }
-                    if (paragraph.startsWith('*')) {
-                        return (
-                            <ul key={index} className={styles.list}>
-                                {paragraph.split('\n').map((item, i) => (
-                                    <li key={i}>{item.replace('*', '').trim()}</li>
-                                ))}
-                            </ul>
-                        );
-                    }
-                    return <p key={index} className={styles.paragraph}>{paragraph}</p>;
-                })}
+                {post.body
+                    ? renderBody(post.body)
+                    : <p className={styles.paragraph} style={{ color: 'var(--muted)' }}>No content yet for this post.</p>
+                }
             </div>
 
+            {/* Reference Links */}
+            {links.length > 0 && (
+                <div className={blogStyles.linksSection}>
+                    <div className={blogStyles.linksSectionTitle}>📎 References &amp; Links</div>
+                    <div className={blogStyles.linksList}>
+                        {links.map((l, i) => (
+                            <a key={i} href={l.url} target="_blank" rel="noopener noreferrer" className={blogStyles.refLink}>
+                                <span className={blogStyles.refLinkIcon}>↗</span>
+                                {l.label}
+                            </a>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Developer Card */}
+            <div className={blogStyles.devCard}>
+                <div className={blogStyles.devCardLeft}>
+                    <div className={blogStyles.devAvatar}>M</div>
+                </div>
+                <div className={blogStyles.devInfo}>
+                    <div className={blogStyles.devName}>Muthuraj C</div>
+                    <div className={blogStyles.devBio}>
+                        Windows OS expert specializing in system optimization, debloating, privacy hardening, and gaming performance. Creator of EXE TOOL PC tools.
+                    </div>
+                    <div className={blogStyles.devSocials}>
+                        <SocialBtn href={author.twitter || ''} icon="𝕏" label="Twitter" />
+                        <SocialBtn href={author.github || ''} icon="⌥" label="GitHub" />
+                        <SocialBtn href={author.linkedin || ''} icon="in" label="LinkedIn" />
+                        <SocialBtn href={author.youtube || ''} icon="▶" label="YouTube" />
+                        <SocialBtn href={author.website || ''} icon="🌐" label="Website" />
+                    </div>
+                </div>
+            </div>
+
+            {/* Footer / Share */}
             <div className={styles.footer}>
                 <div className={styles.shareBlock}>
-                    <span className={styles.shareLabel}>End of Transmission. Share:</span>
-                    <button className={`btn-secondary ${styles.shareBtn}`}>Copy Link</button>
+                    <span className={styles.shareLabel}>Found this helpful? Share it:</span>
+                    <div style={{ display: 'flex', gap: '0.75rem' }}>
+                        <button className={`btn-secondary ${styles.shareBtn}`} onClick={handleCopy}>
+                            {copied ? '✓ Copied!' : 'Copy Link'}
+                        </button>
+                        <a href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}&text=${encodeURIComponent(post.title)}`}
+                            target="_blank" rel="noopener" className={`btn-secondary ${styles.shareBtn}`}>
+                            Share on 𝕏
+                        </a>
+                    </div>
                 </div>
             </div>
         </article>

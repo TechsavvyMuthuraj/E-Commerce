@@ -1,0 +1,298 @@
+.page {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 3rem 2rem 5rem;
+    min-height: calc(100vh - 80px);
+}
+
+/* ── Success Banner ─────────────────────── */
+.successBanner {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.08) 0%, rgba(0, 0, 0, 0) 100%);
+    border: 1px solid rgba(76, 175, 80, 0.25);
+    border-left: 4px solid #4CAF50;
+    padding: 2rem 2rem;
+    margin-bottom: 3rem;
+}
+
+.checkIcon {
+    width: 60px;
+    height: 60px;
+    background: #4CAF50;
+    color: #000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    font-weight: 900;
+    flex-shrink: 0;
+}
+
+.successTitle {
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    color: var(--foreground);
+    margin: 0 0 0.4rem;
+}
+
+.successSub {
+    color: #888;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.orderId {
+    background: #111;
+    padding: 0.15rem 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--accent);
+    border: 1px solid #2a2a2a;
+}
+
+/* ── Cards Section ──────────────────────── */
+.cardsSection {
+    margin-bottom: 3rem;
+}
+
+.sectionTitle {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    color: var(--foreground);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+}
+
+.sectionSub {
+    color: #555;
+    font-size: 0.9rem;
+    margin: 0 0 2rem;
+}
+
+.cards {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.card {
+    background: #080808;
+    border: 1px solid #1e1e1e;
+    border-top: 3px solid var(--accent);
+    padding: 2rem;
+}
+
+.cardHeader {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.productIconWrap {
+    width: 52px;
+    height: 52px;
+    background: rgba(245, 166, 35, 0.1);
+    border: 1px solid rgba(245, 166, 35, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.productIcon {
+    color: var(--accent);
+    font-size: 1.5rem;
+}
+
+.productTitle {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    color: var(--foreground);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.productStatus {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #4CAF50;
+    font-size: 0.8rem;
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 0.25rem;
+}
+
+.statusDot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #4CAF50;
+    display: inline-block;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
+}
+
+/* ── License Key Block ──────────────────── */
+.licenseBlock {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: #040404;
+    border: 1px solid #1a1a1a;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.licenseLabel {
+    font-family: var(--font-heading);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #555;
+    white-space: nowrap;
+}
+
+.licenseKey {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    color: var(--accent);
+    letter-spacing: 2px;
+    flex: 1;
+    word-break: break-all;
+}
+
+.copyBtn {
+    background: transparent;
+    border: 1px solid #2a2a2a;
+    color: #888;
+    padding: 0.35rem 0.9rem;
+    font-family: var(--font-heading);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.copyBtn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* ── Download Button ────────────────────── */
+.downloadBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 1rem;
+    background: var(--accent);
+    color: #000;
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+}
+
+.downloadBtn:hover {
+    background: #d4861a;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(245, 166, 35, 0.35);
+}
+
+.cardFooter {
+    color: #333;
+    font-size: 0.75rem;
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 1rem;
+    text-align: center;
+}
+
+/* ── No Download ────────────────────────── */
+.noDownload {
+    text-align: center;
+    padding: 3rem;
+    border: 1px dashed #2a2a2a;
+    color: #555;
+}
+
+.noDownloadIcon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+/* ── Info Grid ──────────────────────────── */
+.infoGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 3rem;
+}
+
+@media (max-width: 640px) {
+    .infoGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.infoBox {
+    background: #060606;
+    border: 1px solid #1a1a1a;
+    padding: 1.5rem;
+}
+
+.infoIcon {
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.infoTitle {
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--foreground);
+    margin-bottom: 0.5rem;
+}
+
+.infoText {
+    color: #555;
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+/* ── Actions ────────────────────────────── */
+.actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}

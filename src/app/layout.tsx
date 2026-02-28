@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Barlow_Condensed, Space_Mono } from "next/font/google";
-import Navbar from "@/components/layout/Navbar";
-import CartDrawer from "@/components/CartDrawer";
+import ClientShell from "@/components/layout/ClientShell";
 import PageTransition from "@/components/layout/PageTransition";
 import "./globals.css";
 
@@ -23,8 +22,8 @@ const spaceMono = Space_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Tools & Software Marketplace",
-  description: "Premium digital marketplace for tools and software.",
+  title: "EXE TOOL — Premium Windows Software Marketplace",
+  description: "EXE TOOL: Premium digital tools and software for Windows optimization, debloating, and performance.",
 };
 
 export default function RootLayout({
@@ -35,11 +34,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${barlowCondensed.variable} ${spaceMono.variable}`}>
-        <Navbar />
-        <CartDrawer />
-        <PageTransition>
-          {children}
-        </PageTransition>
+        <ClientShell>
+          <PageTransition>
+            {children}
+          </PageTransition>
+        </ClientShell>
       </body>
     </html>
   );

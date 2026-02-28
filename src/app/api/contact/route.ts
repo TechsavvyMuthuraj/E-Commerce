@@ -6,8 +6,8 @@ import ContactAutoReply from '@/emails/ContactAutoReply';
 
 // Initialize Resend
 const resend = new Resend(process.env.RESEND_API_KEY || 're_mock_key');
-const FROM_EMAIL = process.env.FROM_EMAIL || 'support@toolcraft.io';
-const ADMIN_EMAIL = process.env.ADMIN_NOTIFY_EMAIL || 'admin@toolcraft.io';
+const FROM_EMAIL = process.env.FROM_EMAIL || 'support@exe-tool.com';
+const ADMIN_EMAIL = process.env.ADMIN_NOTIFY_EMAIL || 'admin@exe-tool.com';
 
 export async function POST(req: Request) {
     try {
@@ -91,7 +91,7 @@ export async function POST(req: Request) {
                 await resend.emails.send({
                     from: FROM_EMAIL,
                     to: email,
-                    subject: `We received your message — ToolCraft System`,
+                    subject: `We received your message — EXE TOOL`,
                     react: ContactAutoReply({
                         name,
                         subject,

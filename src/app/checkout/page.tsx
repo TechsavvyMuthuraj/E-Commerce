@@ -3,16 +3,28 @@
 import { useCartStore } from '@/store/useCartStore';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
 import styles from './page.module.css';
 
 export default function CheckoutPage() {
-    const { items, getCartTotal, clearCart } = useCartStore();
+    const { items, getCartTotal, getDiscountedTotal, couponCode, discountPercentage, applyCoupon, removeCoupon, clearCart } = useCartStore();
     const [mounted, setMounted] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [user, setUser] = useState<any>(null);
+    const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+    const [localCoupon, setLocalCoupon] = useState('');
+    const [couponError, setCouponError] = useState<string | null>(null);
+    const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
         setMounted(true);
+        const authenticateSession = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            setUser(session?.user || null);
+            setIsCheckingAuth(false);
+        };
+        authenticateSession();
     }, []);
 
     const loadRazorpay = async () => {
@@ -42,7 +54,7 @@ export default function CheckoutPage() {
             const response = await fetch('/api/checkout', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ amount: total })
+                body: JSON.stringify({ items, couponCode })
             });
             const data = await response.json();
 
@@ -58,14 +70,57 @@ export default function CheckoutPage() {
                 key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'dummy_key',
                 amount: data.order.amount,
                 currency: data.order.currency,
-                name: 'Tools & Software E-Commerce',
+                name: 'EXE TOOL',
                 description: 'Payment for your digital tools',
                 order_id: data.order.id,
-                handler: function (response: any) {
-                    console.log('Payment Success:', response);
-                    // On success, redirect to success screen & flush cart
-                    clearCart();
-                    router.push('/order-success');
+                handler: async function (response: any) {
+                    console.log('Payment Verification Triggered:', response);
+
+                    try {
+                        const { data: { session } } = await supabase.auth.getSession();
+
+                        const verifyRes = await fetch('/api/verify-payment', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature,
+                                cartItems: items,
+                                accessToken: session?.access_token,
+                                userId: user.id,
+                                amount: getDiscountedTotal()
+                            })
+                        });
+
+                        const verifyData = await verifyRes.json();
+
+                        if (verifyRes.ok && verifyData.success) {
+                            clearCart();
+                            // Build download redirect URL
+                            if (verifyData.downloadLinks?.length > 0) {
+                                const params = new URLSearchParams();
+                                params.set('orderId', verifyData.orderId);
+                                verifyData.downloadLinks.forEach((d: any, i: number) => {
+                                    params.set(`title${i}`, d.title);
+                                    params.set(`link${i}`, d.downloadLink);
+                                    params.set(`key${i}`, d.licenseKey);
+                                });
+                                params.set('count', String(verifyData.downloadLinks.length));
+                                router.push(`/download?${params.toString()}`);
+                            } else {
+                                router.push('/order-success');
+                            }
+                        } else {
+                            console.error('Verification failed:', verifyData);
+                            alert('Payment could not be securely verified. Contact system administrator.');
+                            setIsProcessing(false);
+                        }
+                    } catch (err) {
+                        console.error('Verification ping failed:', err);
+                        alert('Fatal error during transaction verification.');
+                        setIsProcessing(false);
+                    }
                 },
                 prefill: {
                     name: (document.getElementById('fullname') as HTMLInputElement)?.value || 'John Doe',
@@ -91,14 +146,56 @@ export default function CheckoutPage() {
         }
     };
 
-    if (!mounted) return null;
+    const handleApplyCoupon = async () => {
+        if (!localCoupon.trim()) return;
+        setIsApplyingCoupon(true);
+        setCouponError(null);
+
+        try {
+            const res = await fetch('/api/coupon/validate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: localCoupon, cartItems: items })
+            });
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                applyCoupon(data.code, data.discountPercentage);
+                setLocalCoupon('');
+            } else {
+                setCouponError(data.error || 'Invalid coupon');
+            }
+        } catch (err) {
+            setCouponError('Error validating coupon');
+        } finally {
+            setIsApplyingCoupon(false);
+        }
+    };
+
+    if (!mounted || isCheckingAuth) {
+        return (
+            <div className={`container ${styles.emptyState}`} style={{ padding: '8rem 2rem' }}>
+                <p>Authenticating Session...</p>
+            </div>
+        );
+    }
+
+    if (!user) {
+        return (
+            <div className={`container ${styles.emptyState}`}>
+                <h2>Authentication Required</h2>
+                <p>You must be securely logged in to access the checkout gateway.</p>
+                <button className="btn-primary" onClick={() => router.push('/login?redirect=/checkout')} style={{ marginTop: '1rem' }}>Log In Now</button>
+            </div>
+        );
+    }
 
     if (items.length === 0) {
         return (
             <div className={`container ${styles.emptyState}`}>
                 <h2>Checkout Unavailable</h2>
                 <p>Your cart is completely empty.</p>
-                <button className="btn-secondary" onClick={() => router.push('/products')}>Browse Tools</button>
+                <button className="btn-secondary" onClick={() => router.push('/products')} style={{ marginTop: '1rem' }}>Browse Tools</button>
             </div>
         );
     }
@@ -143,7 +240,7 @@ export default function CheckoutPage() {
                         </div>
 
                         <button type="submit" className={`btn-primary ${styles.payBtn}`} disabled={isProcessing}>
-                            {isProcessing ? 'Initializing Razorpay...' : `Pay $${getCartTotal()} via Razorpay`}
+                            {isProcessing ? 'Initializing Razorpay...' : `Pay ₹${getDiscountedTotal()} via Razorpay`}
                         </button>
                     </form>
                 </div>
@@ -160,7 +257,7 @@ export default function CheckoutPage() {
                                         <div className={styles.itemTitle}>{item.title}</div>
                                         <div className={styles.itemMeta}>
                                             <span className={styles.badge}>{item.licenseTier}</span>
-                                            <span className={`pricing-code ${styles.price}`}>${item.price}</span>
+                                            <span className={`pricing-code ${styles.price}`}>₹{item.price}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -170,15 +267,49 @@ export default function CheckoutPage() {
                         <div className={styles.totals}>
                             <div className={styles.totalRow}>
                                 <span>Subtotal</span>
-                                <span className="pricing-code">${getCartTotal()}</span>
+                                <span className={couponCode ? styles.strikethrough : ''}>₹{getCartTotal()}</span>
                             </div>
+
+                            {/* COUPON SYSTEM UI */}
+                            {couponCode ? (
+                                <div className={`${styles.totalRow} ${styles.discountRow}`} style={{ color: '#4CAF50' }}>
+                                    <span>
+                                        Discount ({couponCode}) - {discountPercentage}%
+                                        <button onClick={removeCoupon} style={{ marginLeft: '10px', background: 'none', border: 'none', color: '#f44336', cursor: 'pointer', fontSize: '0.8rem' }}>Remove</button>
+                                    </span>
+                                    <span>-₹{(getCartTotal() - getDiscountedTotal()).toFixed(2)}</span>
+                                </div>
+                            ) : (
+                                <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        <input
+                                            type="text"
+                                            placeholder="Enter Promo Code"
+                                            value={localCoupon}
+                                            onChange={(e) => setLocalCoupon(e.target.value)}
+                                            className={styles.input}
+                                            style={{ flex: 1, padding: '0.75rem' }}
+                                        />
+                                        <button
+                                            type="button"
+                                            className="btn-secondary"
+                                            onClick={handleApplyCoupon}
+                                            disabled={isApplyingCoupon || !localCoupon.trim()}
+                                        >
+                                            {isApplyingCoupon ? '...' : 'Apply'}
+                                        </button>
+                                    </div>
+                                    {couponError && <div style={{ color: '#f44336', fontSize: '0.85rem', marginTop: '0.5rem' }}>{couponError}</div>}
+                                </div>
+                            )}
+
                             <div className={styles.totalRow}>
                                 <span>Tax (Calculated at gateway)</span>
-                                <span className="pricing-code">--</span>
+                                <span>--</span>
                             </div>
                             <div className={`${styles.totalRow} ${styles.finalTotal}`}>
                                 <span>Total Due</span>
-                                <span className={`pricing-code ${styles.accent}`}>${getCartTotal()}</span>
+                                <span className={`pricing-code ${styles.accent}`}>₹{getDiscountedTotal()}</span>
                             </div>
                         </div>
                     </div>

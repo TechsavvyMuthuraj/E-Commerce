@@ -1,0 +1,198 @@
+.page {
+    padding: 4rem 2rem;
+    padding-bottom: 120px;
+    /* space for compare drawer */
+    min-height: calc(100vh - 80px);
+}
+
+.emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 80px);
+    text-align: center;
+    gap: 1rem;
+}
+
+.topBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 2.5rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1.5rem;
+}
+
+.title {
+    font-size: 2.5rem;
+    margin: 0 0 0.25rem 0;
+    color: var(--accent);
+}
+
+.subtitle {
+    color: var(--muted);
+    margin: 0;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-family: var(--font-heading);
+}
+
+.clearBtn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 0.6rem 1.25rem;
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.clearBtn:hover {
+    border-color: #f44336;
+    color: #f44336;
+}
+
+.compareGrid {
+    display: grid;
+    gap: 0;
+    border: 1px solid var(--border);
+    overflow-x: auto;
+}
+
+.featureHeader {
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    padding: 1rem 1.25rem;
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+}
+
+.productHeader {
+    background: var(--card-bg);
+    border-bottom: 2px solid var(--accent);
+    border-right: 1px solid var(--border);
+    padding: 1.5rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+    text-align: center;
+}
+
+.productThumb {
+    width: 80px;
+    height: 80px;
+    border: 1px solid var(--border);
+}
+
+.productName {
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-align: center;
+    color: var(--foreground);
+    transition: color 0.2s;
+    text-decoration: none;
+}
+
+.productName:hover {
+    color: var(--accent);
+}
+
+.productPrice {
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    color: var(--accent);
+}
+
+.removeBtn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 0.75rem;
+    cursor: pointer;
+    padding: 0.2rem;
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: color 0.2s;
+}
+
+.removeBtn:hover {
+    color: #f44336;
+}
+
+.buyBtn {
+    font-size: 0.85rem;
+    padding: 0.5rem 1rem;
+    width: 100%;
+    text-align: center;
+}
+
+.featureCell {
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    padding: 1rem 1.25rem;
+    font-size: 0.85rem;
+    color: var(--foreground);
+    display: flex;
+    align-items: center;
+    background: var(--background);
+    position: sticky;
+    left: 0;
+}
+
+.dataCell {
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    padding: 1rem;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: background 0.2s;
+}
+
+.matchCell {
+    color: rgba(76, 175, 80, 0.6);
+}
+
+.winCell {
+    color: #4CAF50;
+    background: rgba(76, 175, 80, 0.06);
+    font-weight: 700;
+}
+
+.missCell {
+    color: var(--muted);
+    opacity: 0.4;
+}
+
+.priceCell {
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    color: var(--accent);
+    font-weight: 700;
+}
+
+@media (max-width: 768px) {
+    .page {
+        padding: 2rem 1rem;
+        padding-bottom: 150px;
+    }
+
+    .compareGrid {
+        font-size: 0.8rem;
+    }
+}
