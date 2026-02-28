@@ -89,14 +89,6 @@ export default function CheckoutPage() {
 
     return (
         <div className={`container ${styles.page}`}>
-            {/* Trust Badges */}
-            <div className={styles.trustBar}>
-                {[{ icon: '🔒', label: '256-bit SSL Encrypted' }, { icon: '✅', label: 'Instant Delivery' }, { icon: '↩️', label: 'Easy Refund Policy' }, { icon: '🛡️', label: 'Secure Gateway' }].map(t => (
-                    <div key={t.label} className={styles.trustItem}>
-                        <span className={styles.trustIcon}>{t.icon}</span>{t.label}
-                    </div>
-                ))}
-            </div>
             <div className={styles.header}>
                 <h1>Secure Checkout</h1>
             </div>

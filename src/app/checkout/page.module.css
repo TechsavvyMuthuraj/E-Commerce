@@ -1,29 +1,8 @@
-/* ── Checkout (Secure Vault) ──────────────── */
-
 .page {
-    padding: 5rem 2rem;
+    padding: 4rem 2rem;
     min-height: calc(100vh - 80px);
-    position: relative;
 }
 
-/* Secure Vault watermark */
-.page::before {
-    content: 'SECURE CHECKOUT';
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(-20deg);
-    font-family: var(--font-bebas);
-    font-size: clamp(4rem, 10vw, 8rem);
-    letter-spacing: 8px;
-    color: rgba(240, 165, 0, 0.025);
-    white-space: nowrap;
-    pointer-events: none;
-    z-index: 0;
-    user-select: none;
-}
-
-/* ── Empty / Auth States ─────────────────── */
 .emptyState {
     display: flex;
     flex-direction: column;
@@ -34,90 +13,42 @@
     text-align: center;
 }
 
-/* ── Trust Badge Bar ─────────────────────── */
-.trustBar {
-    display: flex;
-    gap: 2rem;
-    margin-bottom: 3rem;
-    padding: 1rem 1.5rem;
-    background: rgba(240, 165, 0, 0.04);
-    border: 1px solid rgba(240, 165, 0, 0.15);
-    border-left: 3px solid var(--gold);
-    flex-wrap: wrap;
-}
-
-.trustItem {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-family: var(--font-ibm-mono);
-    font-size: 0.72rem;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--muted);
-}
-
-.trustIcon {
-    font-size: 0.9rem;
-}
-
-/* ── Page Header ─────────────────────────── */
 .header {
     margin-bottom: 3rem;
     border-bottom: 1px solid var(--border);
     padding-bottom: 1rem;
-    position: relative;
-    z-index: 1;
 }
 
 .header h1 {
-    font-family: var(--font-bebas);
-    font-size: clamp(2rem, 5vw, 3.5rem);
-    letter-spacing: 4px;
+    font-size: 3rem;
     margin: 0;
-    color: var(--gold);
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    color: var(--accent);
 }
 
-.header h1::before {
-    content: '🔒';
-    font-size: 0.7em;
-}
-
-/* ── Main Grid ───────────────────────────── */
 .grid {
     display: grid;
     grid-template-columns: 3fr 2fr;
     gap: 4rem;
-    position: relative;
-    z-index: 1;
 }
 
 @media (max-width: 900px) {
     .grid {
-        display: flex;
+        grid-template-columns: 1fr;
         flex-direction: column-reverse;
-        gap: 2rem;
+        display: flex;
     }
 }
 
-/* ── Section Titles ──────────────────────── */
 .sectionTitle {
-    font-family: var(--font-ibm-mono);
-    font-size: 0.72rem;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    color: var(--muted);
+    font-size: 1.5rem;
     border-bottom: 1px solid var(--border);
-    padding-bottom: 0.75rem;
-    margin-bottom: 2rem;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
 }
 
-/* ── Form ─────────────────────────────────── */
 .formGroup {
-    margin-bottom: 2.5rem;
+    margin-bottom: 3rem;
 }
 
 .inputRow {
@@ -130,89 +61,50 @@
     margin-bottom: 1.5rem;
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: 0.5rem;
 }
 
 .inputField label {
-    font-family: var(--font-ibm-mono);
+    font-family: var(--font-heading);
     text-transform: uppercase;
-    font-size: 0.65rem;
+    font-size: 0.85rem;
     color: var(--muted);
-    letter-spacing: 2px;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-}
-
-.inputField label::before {
-    content: '//';
-    color: var(--muted-dark);
-    font-family: var(--font-mono);
+    letter-spacing: 1px;
 }
 
 .input,
 .select {
-    background: rgba(0, 0, 0, 0.5);
+    background: var(--card-bg);
     border: 1px solid var(--border);
     color: var(--foreground);
     padding: 0.75rem 1rem;
-    font-family: var(--font-ibm-mono);
-    font-size: 0.9rem;
+    font-family: var(--font-body);
+    font-size: 1rem;
     outline: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    caret-color: var(--gold);
+    transition: border-color 0.2s ease;
 }
 
 .input:focus,
 .select:focus {
-    border-color: var(--gold);
-    box-shadow: 0 0 0 1px rgba(240, 165, 0, 0.15);
+    border-color: var(--accent);
 }
 
-/* ── Submit Button ───────────────────────── */
 .payBtn {
     width: 100%;
-    padding: 1.1rem;
-    font-family: var(--font-ibm-mono);
-    font-size: 0.9rem;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    background: var(--gold);
-    color: #000;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    font-weight: 700;
-    margin-top: 1rem;
-}
-
-.payBtn::before {
-    content: '🔒 ';
-}
-
-.payBtn:hover {
-    background: #fff;
-    box-shadow: 0 0 40px rgba(240, 165, 0, 0.2);
-    transform: translateY(-1px);
+    padding: 1.25rem;
+    font-size: 1.25rem;
 }
 
 .payBtn:disabled {
-    background: var(--border);
-    color: var(--muted);
+    background: var(--muted);
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
 }
 
-/* ── Order Summary Card ──────────────────── */
 .summaryCard {
-    background: var(--bg-secondary);
+    background: var(--card-bg);
     border: 1px solid var(--border);
-    border-top: 2px solid var(--gold);
     padding: 2rem;
     position: sticky;
     top: 100px;
@@ -221,7 +113,7 @@
 .orderItems {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 1.5rem;
     margin-bottom: 2rem;
 }
 
@@ -234,7 +126,7 @@
 .itemImage {
     width: 100%;
     aspect-ratio: 1;
-    background-color: #111;
+    background-color: #252528;
     border: 1px solid var(--border);
 }
 
@@ -242,13 +134,12 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 0.4rem;
+    gap: 0.5rem;
 }
 
 .itemTitle {
-    font-family: var(--font-ibm-mono);
+    font-family: var(--font-body);
     font-weight: 600;
-    font-size: 0.85rem;
 }
 
 .itemMeta {
@@ -259,63 +150,69 @@
 
 .badge {
     background: transparent;
-    padding: 0.2rem 0.5rem;
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.65rem;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
+    letter-spacing: 1px;
+    font-family: var(--font-heading);
     border: 1px solid var(--border);
     color: var(--muted);
 }
 
 .price {
-    font-family: var(--font-mono);
-    font-size: 1rem;
-    color: var(--gold);
+    font-size: 1.1rem;
 }
 
-/* ── Totals ──────────────────────────────── */
 .totals {
     border-top: 1px solid var(--border);
     padding-top: 1.5rem;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 1rem;
 }
 
 .totalRow {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-family: var(--font-ibm-mono);
+    font-family: var(--font-heading);
     text-transform: uppercase;
-    font-size: 0.7rem;
-    letter-spacing: 1.5px;
+    letter-spacing: 1px;
     color: var(--muted);
 }
 
 .finalTotal {
     color: var(--foreground);
-    font-size: 0.9rem;
-    margin-top: 0.75rem;
-    padding-top: 0.75rem;
+    font-size: 1.5rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
     border-top: 1px dashed var(--border);
 }
 
 .accent {
-    color: var(--gold);
-    font-family: var(--font-mono);
-    font-size: 1.4rem;
-    font-weight: 700;
+    color: var(--accent);
+    font-size: 2rem;
 }
 
 .strikethrough {
     text-decoration: line-through;
-    color: var(--muted-dark);
-    font-size: 0.85em;
+    color: var(--muted);
+    font-size: 0.9em;
 }
 
 .discountRow {
-    color: var(--green-accent) !important;
-    animation: slide-up 0.3s ease-out;
+    color: #4CAF50 !important;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

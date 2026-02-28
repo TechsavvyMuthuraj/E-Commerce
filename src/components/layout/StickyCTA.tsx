@@ -8,41 +8,34 @@ export default function StickyCTA() {
     const [product, setProduct] = useState<any>(null);
 
     useEffect(() => {
-        // Fetch specific product to display (fetching all and grabbing the first/featured one)
         const fetchProduct = async () => {
             try {
                 const res = await fetch('/api/products');
                 const data = await res.json();
-                if (data.products && data.products.length > 0) {
-                    // For now, grabbing the first product in the catalog. 
-                    // To "choose" another, we could filter by slug here.
+                if (data.products?.length > 0) {
                     setProduct(data.products[0]);
                 }
             } catch (err) {
-                console.error("Failed to fetch CTA product", err);
+                console.error('Failed to fetch CTA product', err);
             }
         };
         fetchProduct();
 
         const handleScroll = () => {
-            // Show after scrolling 500px (past hero)
-            if (window.scrollY > 500) {
-                setIsVisible(true);
-            } else {
-                setIsVisible(false);
-            }
+            setIsVisible(window.scrollY > 500);
         };
 
-        window.addEventListener('scroll', handleScroll);
+        window.addEventListener('scroll', handleScroll, { passive: true });
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Fallbacks if Sanity product isn't loaded
     const title = product?.title || 'EXE TOOL PREMIUM';
-    const tier = product?.pricingTiers?.[0]; // Grab standard tier
+    const tier = product?.pricingTiers?.[0];
     const salePrice = tier?.price || 499;
     const msrpPrice = tier?.originalPrice || null;
-    const checkoutLink = product ? `/checkout/${product.slug}?tier=${encodeURIComponent(tier?.name || 'Standard')}` : '/checkout/bundle-pro';
+    const checkoutLink = product
+        ? `/checkout/${product.slug}?tier=${encodeURIComponent(tier?.name || 'Standard')}`
+        : '/checkout/bundle-pro';
 
     return (
         <div className={`${styles.stickyBar} ${isVisible ? styles.visible : ''}`}>

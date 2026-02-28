@@ -1,51 +1,19 @@
 :root {
-  /* ── Core Background ─────────────────────── */
-  --background: #0A0A0A;
-  --bg-primary: #0A0A0A;
-  --bg-secondary: #111111;
-  --card-bg: #141414;
-  --bg-card: #141414;
-
-  /* ── Gold Palette ────────────────────────── */
-  --accent: #F0A500;
-  --accent-hover: #D49200;
-  --gold: #F0A500;
-  --gold-dim: #A87000;
-
-  /* ── Text ────────────────────────────────── */
-  --foreground: #F5F5F0;
+  --background: #0E0E10;
+  --foreground: #ffffff;
+  --accent: #F5A623;
+  --accent-hover: #e0961b;
   --muted: #888888;
-  --muted-dark: #444444;
+  --card-bg: #1A1A1E;
+  --border: #333333;
 
-  /* ── Accents ─────────────────────────────── */
-  --green-accent: #00FF88;
-  --danger: #FF4500;
-
-  /* ── Borders ─────────────────────────────── */
-  --border: #222222;
-  --border-gold: 1px solid var(--gold);
-
-  /* ── Shadows / Glows ─────────────────────── */
-  --glow-gold: 0 0 25px rgba(240, 165, 0, 0.3);
-  --glow-green: 0 0 15px rgba(0, 255, 136, 0.2);
-  --glow-card: 0 8px 40px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
-
-  /* ── Typography ──────────────────────────── */
-  --font-heading: "Playfair Display", serif;
   --font-body: "JetBrains Mono", monospace;
-  --font-mono: "JetBrains Mono", monospace;
+  /* Fallback, variable is auto-injected */
+  --font-heading: "Playfair Display", serif;
   --font-bebas: "Bebas Neue", sans-serif;
-  --font-editorial: "Cormorant Garamond", serif;
-  --font-ibm-mono: "IBM Plex Mono", monospace;
-  --font-syne: "Syne", sans-serif;
-
-  /* ── Spacing / Radii ─────────────────────── */
-  --radius: 2px;
-  /* Sharp edges — no soft bubbles */
-  --radius-sm: 4px;
+  --font-mono: "JetBrains Mono", monospace;
 }
 
-/* ── Base ─────────────────────────────────── */
 html,
 body {
   max-width: 100vw;
@@ -62,7 +30,66 @@ body {
   line-height: 1.6;
 }
 
-/* ── Headings ─────────────────────────────── */
+/* Subtle Tech Grid Texture Background */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+  background-size: 60px 60px;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 30%, rgba(0, 0, 0, 0) 100%);
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 30%, rgba(0, 0, 0, 0) 100%);
+}
+
+/* CRT Scanlines Overlay */
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.25) 50%);
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.15;
+}
+
+/* Pulsing Gold Radial Orb */
+.global-orb {
+  position: fixed;
+  top: 40%;
+  left: 50%;
+  width: 800px;
+  height: 800px;
+  background: radial-gradient(circle, rgba(245, 166, 35, 0.08) 0%, transparent 60%);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -2;
+  animation: pulse-orb 8s ease-in-out infinite alternate;
+}
+
+@keyframes pulse-orb {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.6;
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(1.3);
+    opacity: 1;
+  }
+}
+
 h1,
 h2,
 h3,
@@ -76,89 +103,13 @@ h6 {
   margin-bottom: 0.5rem;
 }
 
-/* ── Typography Utilities ─────────────────── */
+/* Bebas Neue utility for giant numbers, logos, industrial text */
 .font-bebas {
   font-family: var(--font-bebas);
   text-transform: uppercase;
   letter-spacing: 2px;
 }
 
-.font-editorial {
-  font-family: var(--font-editorial);
-}
-
-.font-syne {
-  font-family: var(--font-syne);
-}
-
-.font-ibm-mono {
-  font-family: var(--font-ibm-mono);
-}
-
-/* ── Body Grid Overlay ────────────────────── */
-body::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: -1;
-  background-size: 60px 60px;
-  background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
-  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
-}
-
-/* ── CRT Scanlines ────────────────────────── */
-body::after {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: repeating-linear-gradient(to bottom,
-      transparent 0px,
-      transparent 3px,
-      rgba(0, 0, 0, 0.08) 3px,
-      rgba(0, 0, 0, 0.08) 4px);
-  pointer-events: none;
-  z-index: 9998;
-  opacity: 0.6;
-}
-
-/* ── Grain Noise Overlay ──────────────────── */
-.grain-overlay {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 9997;
-  opacity: 0.03;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
-  background-size: 200px 200px;
-  animation: grain-shift 8s steps(10) infinite;
-}
-
-/* ── Pulsing Gold Radial Orb ─────────────── */
-.global-orb {
-  position: fixed;
-  top: 40%;
-  left: 50%;
-  width: 900px;
-  height: 900px;
-  background: radial-gradient(circle, rgba(240, 165, 0, 0.06) 0%, transparent 60%);
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: -2;
-  animation: pulse-orb 10s ease-in-out infinite alternate;
-}
-
-/* ── Links ────────────────────────────────── */
 a {
   color: inherit;
   text-decoration: none;
@@ -169,16 +120,12 @@ a:hover {
   color: var(--accent);
 }
 
-/* ── Reset ────────────────────────────────── */
-*,
-*::before,
-*::after {
+* {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
 }
 
-/* ── Code Utilities ───────────────────────── */
 code,
 .font-mono {
   font-family: var(--font-mono);
@@ -189,50 +136,7 @@ code,
   color: var(--accent);
 }
 
-/* ── Terminal Badge Utility ───────────────── */
-.term-badge {
-  display: inline-block;
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  padding: 2px 8px;
-  border: 1px solid var(--border);
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-/* ── Gold Line Divider ───────────────────── */
-.gold-divider {
-  width: 48px;
-  height: 2px;
-  background: var(--gold);
-  margin: 1.5rem 0;
-}
-
-/* ── Gold underline slide-in ──────────────── */
-.gold-underline {
-  position: relative;
-  display: inline-block;
-}
-
-.gold-underline::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: var(--accent);
-  animation: underline-slide 0.8s 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-}
-
-@keyframes underline-slide {
-  to {
-    width: 100%;
-  }
-}
-
-/* ── Buttons ──────────────────────────────── */
+/* Button Utilities */
 .btn-primary {
   background-color: var(--accent);
   color: #000;
@@ -248,14 +152,13 @@ code,
   justify-content: center;
   gap: 0.5rem;
   font-size: 1.1rem;
-  letter-spacing: 1.5px;
-  border-radius: var(--radius);
+  letter-spacing: 1px;
 }
 
 .btn-primary:hover {
   background-color: var(--accent-hover);
   transform: translateY(-2px);
-  box-shadow: var(--glow-gold);
+  box-shadow: 0 4px 12px rgba(245, 166, 35, 0.3);
 }
 
 .btn-secondary {
@@ -270,7 +173,6 @@ code,
   transition: all 0.2s ease;
   font-size: 1.1rem;
   letter-spacing: 1px;
-  border-radius: var(--radius);
 }
 
 .btn-secondary:hover {
@@ -278,225 +180,50 @@ code,
   color: var(--accent);
 }
 
-/* ── Terminal Button Variant ─────────────── */
-.btn-terminal {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: var(--font-mono);
-  font-size: 0.9rem;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--green-accent);
-  background: rgba(0, 255, 136, 0.05);
-  border: 1px solid rgba(0, 255, 136, 0.3);
-  padding: 0.75rem 1.5rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border-radius: var(--radius);
-}
-
-.btn-terminal::before {
-  content: '>_ ';
-  opacity: 0.6;
-}
-
-.btn-terminal:hover {
-  background: rgba(0, 255, 136, 0.1);
-  box-shadow: var(--glow-green);
-  border-color: var(--green-accent);
-  color: var(--green-accent);
-}
-
-/* ── Container ────────────────────────────── */
+/* Container Utility */
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 2rem;
 }
 
-/* ── Scroll Reveal ───────────────────────── */
-.reveal {
-  opacity: 0;
-  transform: translateY(32px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
-}
+/* ── Mobile Global Responsive ── */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1rem;
+  }
 
-.reveal.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
+  .btn-primary,
+  .btn-secondary {
+    font-size: 0.9rem;
+    padding: 0.65rem 1.2rem;
+    letter-spacing: 0.5px;
+  }
 
-/* ── Stagger children (use on container) ─── */
-.stagger>* {
-  opacity: 0;
-  transform: translateY(20px);
-  animation: float-up 0.5s ease forwards;
-}
+  h1 {
+    font-size: clamp(2rem, 8vw, 4rem);
+  }
 
-.stagger>*:nth-child(1) {
-  animation-delay: 0.05s;
-}
+  h2 {
+    font-size: clamp(1.5rem, 6vw, 2.5rem);
+  }
 
-.stagger>*:nth-child(2) {
-  animation-delay: 0.12s;
-}
-
-.stagger>*:nth-child(3) {
-  animation-delay: 0.19s;
-}
-
-.stagger>*:nth-child(4) {
-  animation-delay: 0.26s;
-}
-
-.stagger>*:nth-child(5) {
-  animation-delay: 0.33s;
-}
-
-.stagger>*:nth-child(6) {
-  animation-delay: 0.40s;
-}
-
-/* ── Keyframes ────────────────────────────── */
-@keyframes float-up {
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  h3 {
+    font-size: clamp(1.1rem, 4vw, 1.75rem);
   }
 }
 
-@keyframes grain-shift {
-
-  0%,
-  100% {
-    transform: translate(0, 0);
+@media (max-width: 480px) {
+  .container {
+    padding: 0 0.75rem;
   }
 
-  10% {
-    transform: translate(-2%, -3%);
+  .btn-primary,
+  .btn-secondary {
+    font-size: 0.85rem;
+    padding: 0.6rem 1rem;
+    width: 100%;
+    text-align: center;
+    justify-content: center;
   }
-
-  20% {
-    transform: translate(3%, 1%);
-  }
-
-  30% {
-    transform: translate(-1%, 4%);
-  }
-
-  40% {
-    transform: translate(2%, -2%);
-  }
-
-  50% {
-    transform: translate(-3%, 3%);
-  }
-
-  60% {
-    transform: translate(1%, -1%);
-  }
-
-  70% {
-    transform: translate(3%, 2%);
-  }
-
-  80% {
-    transform: translate(-2%, -3%);
-  }
-
-  90% {
-    transform: translate(2%, 3%);
-  }
-}
-
-@keyframes pulse-orb {
-  0% {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 0.5;
-  }
-
-  100% {
-    transform: translate(-50%, -50%) scale(1.4);
-    opacity: 1;
-  }
-}
-
-@keyframes blink-cursor {
-
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0;
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -200% center;
-  }
-
-  100% {
-    background-position: 200% center;
-  }
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ── Cursor blink utility ────────────────── */
-.cursor-blink::after {
-  content: '|';
-  animation: blink-cursor 1s step-end infinite;
-  color: var(--green-accent);
-  margin-left: 2px;
-}
-
-/* ── Shimmer text ────────────────────────── */
-.shimmer-text {
-  background: linear-gradient(90deg,
-      var(--gold) 0%,
-      #fff5c0 40%,
-      var(--gold) 60%,
-      var(--gold-dim) 100%);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: shimmer 3s linear infinite;
-}
-
-/* ── Status dots ─────────────────────────── */
-.status-active {
-  color: var(--green-accent);
-}
-
-.status-expired {
-  color: var(--danger);
-}
-
-.status-warned {
-  color: var(--accent);
-}
-
-.status-banned {
-  color: #ff5f56;
 }

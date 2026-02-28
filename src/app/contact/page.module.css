@@ -1,17 +1,15 @@
-/* ── Contact Page (Encrypted Terminal) ───── */
-
 .page {
     display: flex;
     min-height: calc(100vh - 80px);
-    background: var(--bg-primary);
+    background: var(--background);
 }
 
 .contactContainer {
     display: grid;
     grid-template-columns: 1fr;
     gap: 4rem;
-    max-width: 1100px;
-    margin: 5rem auto;
+    max-width: 1200px;
+    margin: 4rem auto;
     padding: 0 2rem;
     width: 100%;
 }
@@ -23,100 +21,80 @@
     }
 }
 
-/* ── Left: info ───────────────────────────── */
 .leftColumn {
     display: flex;
     flex-direction: column;
     gap: 2rem;
 }
 
-.terminalPrompt {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--green-accent);
-    letter-spacing: 2px;
-    margin-bottom: 0.5rem;
-    opacity: 0.7;
-}
-
 .heading {
-    font-family: var(--font-bebas);
-    font-size: clamp(2.5rem, 5vw, 4rem);
-    letter-spacing: 4px;
+    font-size: 4rem;
+    line-height: 1;
     color: var(--foreground);
     margin: 0;
-    line-height: 1;
     text-transform: uppercase;
+    letter-spacing: -1px;
 }
 
 .tagline {
-    font-family: var(--font-ibm-mono);
-    font-size: 0.85rem;
+    font-size: 1.25rem;
     color: var(--muted);
-    line-height: 1.7;
+    line-height: 1.6;
     max-width: 90%;
 }
 
 .infoCards {
     display: flex;
     flex-direction: column;
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    margin-top: 1rem;
+    gap: 1.5rem;
+    margin-top: 2rem;
 }
 
 .infoCard {
-    background: var(--bg-secondary);
-    padding: 1.25rem 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    border-radius: 4px;
 }
 
 .infoCard h3 {
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    letter-spacing: 3px;
+    color: var(--accent);
+    font-family: var(--font-heading);
     text-transform: uppercase;
-    color: var(--green-accent);
-    margin: 0 0 0.25rem 0;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    margin: 0 0 0.5rem 0;
 }
 
 .infoCard p {
-    font-family: var(--font-ibm-mono);
     color: var(--foreground);
     margin: 0;
-    font-size: 0.9rem;
+    font-size: 1.1rem;
 }
 
-/* ── Right: form ──────────────────────────── */
 .rightColumn {
-    background: var(--bg-secondary);
+    background: var(--card-bg);
     border: 1px solid var(--border);
-    border-top: 2px solid var(--gold);
-    padding: 2.5rem;
+    border-radius: 8px;
+    padding: 3rem;
     position: relative;
     overflow: hidden;
 }
 
 .rightColumn::before {
-    content: '// ENCRYPTED_CHANNEL_ACTIVE';
+    content: '';
     position: absolute;
-    top: 0.6rem;
-    right: 1.5rem;
-    font-family: var(--font-mono);
-    font-size: 0.55rem;
-    color: rgba(0, 255, 136, 0.3);
-    letter-spacing: 2px;
-    pointer-events: none;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent) 0%, transparent 100%);
 }
 
-/* ── Terminal Form ────────────────────────── */
 .form {
     display: flex;
     flex-direction: column;
-    gap: 1.75rem;
+    gap: 1.5rem;
 }
 
 .inputGroup {
@@ -125,149 +103,95 @@
     position: relative;
 }
 
-/* Terminal label: "> NAME:" style */
 .inputGroup label {
-    font-family: var(--font-mono);
-    color: var(--green-accent);
-    font-size: 0.72rem;
-    letter-spacing: 2px;
-    margin-bottom: 0.4rem;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-}
-
-.inputGroup label::before {
-    content: '>';
-    color: var(--gold);
-    font-size: 0.8rem;
+    color: var(--muted);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+    font-family: var(--font-heading);
 }
 
 .input {
-    background: rgba(0, 0, 0, 0.6);
-    border: none;
-    border-bottom: 1px solid var(--border);
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border);
+    border-radius: 4px;
     color: var(--foreground);
-    padding: 0.75rem 0.5rem;
-    font-family: var(--font-mono);
-    font-size: 0.9rem;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    outline: none;
-    width: 100%;
-    caret-color: var(--green-accent);
-}
-
-.input:focus {
-    border-bottom-color: var(--green-accent);
-    box-shadow: 0 2px 0 0 rgba(0, 255, 136, 0.2);
+    padding: 1rem;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .input:-webkit-autofill,
 .input:-webkit-autofill:hover,
-.input:-webkit-autofill:focus {
-    -webkit-box-shadow: 0 0 0 30px #0d0d0d inset !important;
+.input:-webkit-autofill:focus,
+.input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #1a1a1e inset !important;
     -webkit-text-fill-color: var(--foreground) !important;
     transition: background-color 5000s ease-in-out 0s;
 }
 
-/* Cursor blink in focused input */
-.input:focus::placeholder {
-    opacity: 0.3;
-}
-
-/* ── Textarea ─────────────────────────────── */
-textarea.input {
-    resize: vertical;
-    min-height: 120px;
-    line-height: 1.6;
+.input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(245, 166, 35, 0.1);
 }
 
 .honeypot {
     display: none !important;
 }
 
-/* ── Submit Button: terminal command style ── */
 .submitBtn {
-    margin-top: 0.5rem;
+    margin-top: 1rem;
     width: 100%;
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--bg-primary);
-    background: var(--gold);
-    border: none;
-    padding: 1rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    position: relative;
-}
-
-.submitBtn::before {
-    content: '[ ';
-}
-
-.submitBtn::after {
-    content: ' ]';
-}
-
-.submitBtn:hover {
-    background: #fff;
-    box-shadow: 0 0 30px rgba(240, 165, 0, 0.3);
-    transform: translateY(-1px);
 }
 
 .submitBtn:disabled {
-    opacity: 0.5;
+    opacity: 0.7;
     cursor: not-allowed;
     transform: none;
-    background: var(--border);
-    color: var(--muted);
 }
 
-/* ── Error / Char Count ───────────────────── */
 .errorText {
-    color: var(--danger);
+    color: #ff4444;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
     font-family: var(--font-mono);
-    font-size: 0.72rem;
-    letter-spacing: 1px;
-    margin-top: 0.4rem;
 }
 
 .charCount {
     position: absolute;
-    bottom: 0.4rem;
-    right: 0.25rem;
-    font-size: 0.65rem;
+    bottom: 0.5rem;
+    right: 0.5rem;
+    font-size: 0.75rem;
     font-family: var(--font-mono);
-    color: var(--muted-dark);
+    color: var(--muted);
     pointer-events: none;
 }
 
-/* ── Success Card ─────────────────────────── */
+/* Success Card */
 .successCard {
     text-align: center;
-    padding: 3rem 0;
+    padding: 2rem 0;
 }
 
 .successIcon {
-    font-family: var(--font-mono);
-    font-size: 2rem;
-    color: var(--green-accent);
+    font-size: 4rem;
+    color: var(--accent);
     margin-bottom: 1.5rem;
-    text-shadow: var(--glow-green);
 }
 
 .ticketId {
-    background: rgba(0, 255, 136, 0.05);
-    border: 1px solid rgba(0, 255, 136, 0.2);
-    padding: 0.75rem 1.5rem;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--border);
+    padding: 1rem;
+    border-radius: 4px;
     font-family: var(--font-mono);
-    color: var(--green-accent);
-    letter-spacing: 3px;
+    color: var(--accent);
+    letter-spacing: 2px;
     margin: 1.5rem 0;
     display: inline-block;
-    font-size: 0.8rem;
 }
 
 .newTicketBtn {
@@ -275,16 +199,15 @@ textarea.input {
     background: transparent;
     color: var(--muted);
     border: 1px solid var(--border);
-    padding: 0.5rem 1.25rem;
+    padding: 0.5rem 1rem;
     cursor: pointer;
-    font-family: var(--font-mono);
+    font-family: var(--font-heading);
     text-transform: uppercase;
-    font-size: 0.72rem;
-    letter-spacing: 2px;
+    font-size: 0.8rem;
     transition: all 0.2s;
 }
 
 .newTicketBtn:hover {
     color: var(--foreground);
-    border-color: var(--gold);
+    border-color: var(--accent);
 }

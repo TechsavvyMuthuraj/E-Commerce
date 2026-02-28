@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Playfair_Display, JetBrains_Mono, Bebas_Neue, Cormorant_Garamond, IBM_Plex_Mono, Syne } from "next/font/google";
+import { Playfair_Display, JetBrains_Mono, Bebas_Neue } from "next/font/google";
 import ClientShell from "@/components/layout/ClientShell";
 import PageTransition from "@/components/layout/PageTransition";
 import "./globals.css";
@@ -22,25 +22,6 @@ const bebas = Bebas_Neue({
   weight: ["400"],
 });
 
-const cormorant = Cormorant_Garamond({
-  variable: "--font-editorial",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  style: ["normal", "italic"],
-});
-
-const ibmMono = IBM_Plex_Mono({
-  variable: "--font-ibm-mono",
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
-});
-
-const syne = Syne({
-  variable: "--font-syne",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-});
-
 export const metadata: Metadata = {
   title: "EXE TOOL — Premium Windows Software Marketplace",
   description: "EXE TOOL: Premium digital tools and software for Windows optimization, debloating, and performance.",
@@ -53,7 +34,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${playfair.variable} ${jetbrains.variable} ${bebas.variable} ${cormorant.variable} ${ibmMono.variable} ${syne.variable}`}>
+      <body className={`${playfair.variable} ${jetbrains.variable} ${bebas.variable}`}>
         <ClientShell>
           <PageTransition>
             {children}

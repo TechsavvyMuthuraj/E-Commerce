@@ -1,64 +1,45 @@
-/* ── Blog Post (Luxury Long-Read) ─────────── */
-/* All existing shortcode classes preserved and enhanced */
-
-/* ── Cover Image ─────────────────────────── */
+/* ── Cover Image ─────────────────────────────── */
 .coverImage {
     width: 100%;
-    height: 380px;
+    height: 340px;
     background-size: cover;
     background-position: center;
-    border: 1px solid var(--border);
-    margin: 2.5rem 0;
+    border: 1px solid #1e1e1e;
+    margin: 2rem 0;
     position: relative;
-    overflow: hidden;
 }
 
-.coverImage::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to bottom, transparent 60%, rgba(0, 0, 0, 0.7) 100%);
+/* ── Pull Quote ──────────────────────────────── */
+.pullQuote {
+    border-left: 4px solid var(--accent);
+    background: #090909;
+    padding: 1.25rem 1.75rem;
+    margin: 1.5rem 0 2.5rem;
+    color: #888;
+    font-style: italic;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    border-radius: 0 4px 4px 0;
 }
 
-/* ── Body Content ─────────────────────────── */
-.paragraph {
-    font-family: var(--font-editorial);
-    color: #c5c5c0;
-    font-size: 1.2rem;
-    line-height: 1.9;
-    margin: 0 0 1rem;
-    letter-spacing: 0.01em;
-}
-
-/* Drop cap on first paragraph */
-.paragraph:first-of-type::first-letter {
-    font-family: var(--font-editorial);
-    font-size: 4.5rem;
-    font-weight: 700;
-    float: left;
-    line-height: 0.75;
-    margin: 0.1em 0.12em 0 0;
-    color: var(--gold);
-    text-shadow: 0 0 20px rgba(240, 165, 0, 0.3);
-}
-
-/* ── Headings ─────────────────────────────── */
+/* ── Body Content ────────────────────────────── */
 .h2 {
-    font-family: var(--font-bebas);
-    font-size: 2.2rem;
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
     color: var(--foreground);
-    letter-spacing: 3px;
-    margin: 3rem 0 1rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--border);
     text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #1e1e1e;
 }
 
 .h3 {
     font-family: var(--font-heading);
-    font-size: 1.4rem;
-    font-style: italic;
+    font-size: 1.35rem;
     color: var(--foreground);
+    text-transform: uppercase;
+    letter-spacing: 1px;
     margin: 2rem 0 0.75rem;
     display: flex;
     align-items: center;
@@ -69,55 +50,33 @@
 .h3::before {
     content: '//';
     font-family: var(--font-mono);
-    color: var(--muted-dark);
+    color: #333;
     font-size: 1rem;
-    font-style: normal;
 }
 
-/* ── Pull Quote ───────────────────────────── */
-.pullQuote {
-    border-left: 3px solid var(--gold);
-    background: rgba(240, 165, 0, 0.03);
-    padding: 1.5rem 2rem;
-    margin: 2rem 0 3rem;
-    color: var(--foreground);
-    font-family: var(--font-editorial);
-    font-style: italic;
-    font-size: 1.35rem;
-    line-height: 1.6;
-    position: relative;
+.paragraph {
+    color: #b0b0b0;
+    font-size: 1.1rem;
+    line-height: 1.85;
+    margin: 0 0 0.5rem;
 }
 
-.pullQuote::before {
-    content: '"';
-    position: absolute;
-    top: -0.5rem;
-    left: 1.5rem;
-    font-size: 4rem;
-    color: var(--gold);
-    opacity: 0.25;
-    font-family: var(--font-editorial);
-    line-height: 1;
-}
-
-/* ── Lists ────────────────────────────────── */
 .list {
     list-style: none;
-    padding: 1.5rem 1.5rem 1.5rem 2rem;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--gold);
+    padding: 1.5rem;
+    background: #080808;
+    border: 1px solid #1e1e1e;
+    border-left: 3px solid var(--accent);
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    margin: 0.75rem 0;
+    margin: 0.5rem 0;
 }
 
 .list li {
-    font-family: var(--font-editorial);
-    color: #b0b0b0;
-    font-size: 1.1rem;
-    line-height: 1.7;
+    color: #aaa;
+    font-size: 1.05rem;
+    line-height: 1.6;
     padding-left: 1.5rem;
     position: relative;
 }
@@ -126,88 +85,83 @@
     content: '›';
     position: absolute;
     left: 0;
-    color: var(--gold);
+    color: var(--accent);
     font-weight: 900;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
 }
 
-/* ── Inline Links ────────────────────────── */
 .inlineLink {
     color: var(--accent) !important;
     text-decoration: underline;
-    text-underline-offset: 4px;
-    text-decoration-color: rgba(240, 165, 0, 0.4);
-    transition: text-decoration-color 0.2s ease;
+    text-underline-offset: 3px;
+    transition: opacity 0.2s;
 }
 
 .inlineLink:hover {
-    text-decoration-color: var(--gold);
+    opacity: 0.75;
 }
 
-/* ── Reference Links ─────────────────────── */
+/* ── Reference Links Section ─────────────────── */
 .linksSection {
     margin: 3rem 0;
     padding: 1.5rem;
-    border: 1px solid var(--border);
-    border-top: 2px solid var(--gold);
-    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid #1e1e1e;
+    background: #060606;
 }
 
 .linksSectionTitle {
-    font-family: var(--font-ibm-mono);
+    font-family: var(--font-heading);
     text-transform: uppercase;
-    letter-spacing: 3px;
-    font-size: 0.65rem;
-    color: var(--muted);
-    margin-bottom: 1.25rem;
+    letter-spacing: 1px;
+    font-size: 0.8rem;
+    color: #555;
+    margin-bottom: 1rem;
 }
 
 .linksList {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.6rem;
 }
 
 .refLink {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    color: var(--foreground);
-    font-family: var(--font-ibm-mono);
-    font-size: 0.85rem;
+    color: var(--accent);
+    font-size: 0.95rem;
     text-decoration: none;
     padding: 0.6rem 0.75rem;
-    border: 1px solid var(--border);
-    background: rgba(0, 0, 0, 0.2);
-    transition: all 0.2s ease;
+    border: 1px solid #1a1a1a;
+    background: #090909;
+    transition: all 0.2s;
 }
 
 .refLink:hover {
-    border-color: var(--gold);
-    background: rgba(240, 165, 0, 0.05);
+    border-color: var(--accent);
+    background: rgba(245, 166, 35, 0.06);
     transform: translateX(4px);
-    color: var(--gold);
 }
 
 .refLinkIcon {
     font-family: var(--font-mono);
-    color: var(--muted-dark);
+    color: #555;
     font-size: 0.85rem;
     transition: color 0.2s;
 }
 
 .refLink:hover .refLinkIcon {
-    color: var(--gold);
+    color: var(--accent);
 }
 
-/* ── Developer Card ──────────────────────── */
+/* ── Developer Card ──────────────────────────── */
 .devCard {
     display: flex;
     gap: 1.75rem;
     align-items: flex-start;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    border-top: 2px solid var(--gold);
+    background: #080808;
+    border: 1px solid #1e1e1e;
+    border-top: 3px solid var(--accent);
     padding: 2rem;
     margin: 3rem 0;
 }
@@ -220,7 +174,7 @@
     width: 72px;
     height: 72px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--gold), #c07a00);
+    background: linear-gradient(135deg, var(--accent), #c07a00);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -228,7 +182,7 @@
     font-size: 2rem;
     font-weight: 900;
     color: #000;
-    box-shadow: 0 0 20px rgba(240, 165, 0, 0.3);
+    border: 2px solid rgba(245, 166, 35, 0.3);
 }
 
 .devInfo {
@@ -237,7 +191,7 @@
 
 .devName {
     font-family: var(--font-heading);
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     font-weight: 700;
     color: var(--foreground);
     text-transform: uppercase;
@@ -246,44 +200,45 @@
 }
 
 .devBio {
-    font-family: var(--font-ibm-mono);
-    color: var(--muted);
-    font-size: 0.82rem;
-    line-height: 1.7;
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.6;
     margin-bottom: 1.25rem;
 }
 
 .devSocials {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.6rem;
 }
 
 .socialBtn {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.35rem 0.85rem;
-    border: 1px solid var(--border);
-    background: #0d0d0d;
-    color: var(--muted);
+    padding: 0.4rem 0.9rem;
+    border: 1px solid #2a2a2a;
+    background: #0d0d0f;
+    color: #888;
     text-decoration: none;
-    font-family: var(--font-ibm-mono);
-    font-size: 0.7rem;
+    font-family: var(--font-heading);
+    font-size: 0.72rem;
     text-transform: uppercase;
     letter-spacing: 1px;
-    transition: all 0.2s ease;
+    transition: all 0.2s;
 }
 
 .socialBtn:hover {
-    border-color: var(--gold);
-    color: var(--gold);
-    background: rgba(240, 165, 0, 0.05);
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(245, 166, 35, 0.06);
+    transform: translateY(-2px);
 }
 
 .socialIcon {
-    color: var(--gold);
     font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--accent);
 }
 
 .socialLabel {

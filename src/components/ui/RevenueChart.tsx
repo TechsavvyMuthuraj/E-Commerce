@@ -36,8 +36,11 @@ export default function RevenueChart({ initialData }: { initialData?: { date: st
     const height = 250;
     const padding = { top: 20, right: 20, bottom: 30, left: 50 };
 
-    const getX = (index: number) => padding.left + (index / (data.length - 1)) * (width - padding.left - padding.right);
-    const getY = (val: number) => height - padding.bottom - ((val - minVal) / (maxVal - minVal)) * (height - padding.top - padding.bottom);
+    const range = maxVal - minVal;
+    const getX = (index: number) => padding.left + (index / Math.max(data.length - 1, 1)) * (width - padding.left - padding.right);
+    const getY = (val: number) => range === 0
+        ? height - padding.bottom  // all-zero fallback: render flat line at baseline
+        : height - padding.bottom - ((val - minVal) / range) * (height - padding.top - padding.bottom);
 
     // Create SVG Path for the line
     const linePath = data.map((d, i) => `${i === 0 ? 'M' : 'L'} ${getX(i)} ${getY(d.value)}`).join(' ');
