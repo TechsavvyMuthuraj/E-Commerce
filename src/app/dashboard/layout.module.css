@@ -1,0 +1,116 @@
+.dashboardLayout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: calc(100vh - 80px);
+    padding: 3rem 2rem;
+    gap: 3rem;
+    align-items: start;
+}
+
+@media (max-width: 900px) {
+    .dashboardLayout {
+        grid-template-columns: 1fr;
+        padding: 2rem 1rem;
+    }
+}
+
+.sidebar {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 100px;
+    height: calc(100vh - 140px);
+}
+
+@media (max-width: 900px) {
+    .sidebar {
+        height: auto;
+        position: static;
+    }
+}
+
+.sidebarHeader {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.sidebarHeader h3 {
+    font-family: var(--font-heading);
+    color: var(--muted);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+}
+
+.userEmail {
+    font-family: var(--font-body);
+    font-weight: 600;
+    color: var(--accent);
+    word-break: break-all;
+}
+
+.navConfig {
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 0;
+    flex-grow: 1;
+    gap: 0.25rem;
+}
+
+.navItem {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1.5rem;
+    color: var(--muted);
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.95rem;
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.navItem:hover {
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--foreground);
+}
+
+.navItem.active {
+    background: rgba(245, 166, 35, 0.05);
+    border-left-color: var(--accent);
+    color: var(--foreground);
+}
+
+.icon {
+    font-size: 1.25rem;
+    opacity: 0.8;
+}
+
+.sidebarFooter {
+    padding: 1.5rem;
+    border-top: 1px solid var(--border);
+}
+
+.logoutBtn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #ff4d4d;
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    transition: opacity 0.2s ease;
+}
+
+.logoutBtn:hover {
+    opacity: 0.8;
+}
+
+.mainContent {
+    width: 100%;
+}
