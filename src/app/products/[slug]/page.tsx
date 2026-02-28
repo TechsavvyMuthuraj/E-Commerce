@@ -105,13 +105,25 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
     const handleBuyNow = () => {
         if (!product || !selectedTier) return;
+        const checkoutUrl = `/checkout/${product.slug}?tier=${encodeURIComponent(selectedTier.name)}`;
+        window.location.href = checkoutUrl;
+    };
 
-        if (selectedTier.paymentLink) {
-            window.location.href = selectedTier.paymentLink;
-        } else {
-            // Strict enforcement of Payment Links only. No fallback to cart/checkout.
-            alert('Test Mode / Admin Notice: This product does not have a Razorpay Payment Link configured. Please add the "Payment Link" in your Sanity CMS for this product tier.');
-        }
+    const handleAddToCart = () => {
+        if (!product || !selectedTier) return;
+
+        addItem({
+            id: `${product.slug}-${selectedTier.name}`,
+            productId: product.id,
+            slug: product.slug,
+            title: product.title,
+            price: selectedTier.price,
+            licenseTier: selectedTier.name,
+            image: product.mainImageUrl || '',
+            downloadLink: selectedTier.downloadLink,
+            paymentLink: selectedTier.paymentLink
+        });
+        openDrawer();
     };
 
     if (isLoading) {
@@ -213,9 +225,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                                     )}
                                 </div>
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', flexGrow: 1 }}>
-                                <button className={`btn-primary ${styles.addToCartBtn}`} onClick={handleBuyNow} style={{ margin: 0 }}>
-                                    {selectedTier.paymentLink ? 'BUY NOW' : 'Add to Cart'}
+                            <div className={styles.buttonGroup}>
+                                <button className={`btn-primary ${styles.buyNowBtn}`} onClick={handleBuyNow}>
+                                    ⚡ BUY NOW
+                                </button>
+                                <button className={`btn-secondary ${styles.secondaryCartBtn}`} onClick={handleAddToCart}>
+                                    🛒 Add to Cart
                                 </button>
                             </div>
                         </div>
