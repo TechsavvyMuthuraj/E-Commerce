@@ -6,12 +6,18 @@ const TOKEN = process.env.SANITY_API_TOKEN!;
 // GET all documents of a type
 export async function GET(request: Request) {
     try {
+        if (!TOKEN) {
+            return NextResponse.json({
+                error: 'SANITY_API_TOKEN is missing. Please ensure it is set in your environment variables.'
+            }, { status: 401 });
+        }
+
         const { searchParams } = new URL(request.url);
         const type = searchParams.get('type') || 'post';
         const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
         const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production';
 
-        // Return full fields so the edit form can be pre-filled
+        // ... fields logic omitted for brevity in replacement ...
         const productFields = `_id, _type, title, slug, category, _createdAt, shortDescription, longDescription, features, pricingTiers[] { name, price, originalPrice, licenseType, downloadLink, paymentLink }, "mainImage": { "url": mainImage.asset->url, "ref": mainImage.asset._ref }, "gallery": gallery[] { "url": asset->url, "ref": asset._ref }`;
         const postFields = `_id, _type, title, slug, category, status, _createdAt, excerpt, body, readTime, coverImageUrl, links, author`;
         const storedLinkFields = `_id, _type, title, amount, url, _createdAt`;
@@ -26,6 +32,13 @@ export async function GET(request: Request) {
             { headers: { Authorization: `Bearer ${TOKEN}` }, cache: 'no-store' }
         );
         const data = await res.json();
+
+        if (!res.ok) {
+            return NextResponse.json({
+                error: `Sanity Query Failed: ${data.message || JSON.stringify(data)}`
+            }, { status: res.status });
+        }
+
         return NextResponse.json({ documents: data.result || [] });
     } catch (err: any) {
         return NextResponse.json({ error: err.message }, { status: 500 });
@@ -35,6 +48,12 @@ export async function GET(request: Request) {
 // POST: Create a new document
 export async function POST(request: Request) {
     try {
+        if (!TOKEN) {
+            return NextResponse.json({
+                error: 'SANITY_API_TOKEN is missing in environment variables. Check your Netlify/Vercel settings.'
+            }, { status: 401 });
+        }
+
         const body = await request.json();
         const { document } = body;
 
@@ -50,7 +69,14 @@ export async function POST(request: Request) {
         });
 
         const data = await res.json();
-        if (!res.ok) return NextResponse.json({ error: data }, { status: 500 });
+        if (!res.ok) {
+            const errorMsg = data.message || JSON.stringify(data);
+            return NextResponse.json({
+                error: res.status === 401
+                    ? `Sanity Authentication Failed: ${errorMsg}. Ensure your SANITY_API_TOKEN has Editor permissions.`
+                    : data
+            }, { status: res.status });
+        }
         return NextResponse.json({ success: true, result: data });
     } catch (err: any) {
         return NextResponse.json({ error: err.message }, { status: 500 });
@@ -60,6 +86,8 @@ export async function POST(request: Request) {
 // PATCH: Update a document
 export async function PATCH(request: Request) {
     try {
+        if (!TOKEN) return NextResponse.json({ error: 'SANITY_API_TOKEN missing' }, { status: 401 });
+
         const body = await request.json();
         const { id, patch } = body;
 
@@ -75,7 +103,11 @@ export async function PATCH(request: Request) {
         });
 
         const data = await res.json();
-        if (!res.ok) return NextResponse.json({ error: data }, { status: 500 });
+        if (!res.ok) {
+            return NextResponse.json({
+                error: `Sanity Update Failed: ${data.message || JSON.stringify(data)}`
+            }, { status: res.status });
+        }
         return NextResponse.json({ success: true, result: data });
     } catch (err: any) {
         return NextResponse.json({ error: err.message }, { status: 500 });
@@ -85,6 +117,8 @@ export async function PATCH(request: Request) {
 // DELETE a document
 export async function DELETE(request: Request) {
     try {
+        if (!TOKEN) return NextResponse.json({ error: 'SANITY_API_TOKEN missing' }, { status: 401 });
+
         const { id } = await request.json();
 
         const res = await fetch(SANITY_URL, {
@@ -99,7 +133,11 @@ export async function DELETE(request: Request) {
         });
 
         const data = await res.json();
-        if (!res.ok) return NextResponse.json({ error: data }, { status: 500 });
+        if (!res.ok) {
+            return NextResponse.json({
+                error: `Sanity Delete Failed: ${data.message || JSON.stringify(data)}`
+            }, { status: res.status });
+        }
         return NextResponse.json({ success: true });
     } catch (err: any) {
         return NextResponse.json({ error: err.message }, { status: 500 });
